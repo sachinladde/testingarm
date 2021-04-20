@@ -1,0 +1,458 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Name of the Virtual Network"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+     
+      "metadata": {
+        "description": "Value of the VNET Address prefix"
+      }
+    },
+     "dnsServerIPAddress": {
+      "type": "array",
+    
+      "metadata": {
+        "description": "Value of th dns server IP address"
+      }
+    },
+    "gatewaySubnetPrefix": {
+      "type": "string",
+    
+      "metadata": {
+        "description": "Value of the Gateway Subnet Prefix"
+      }
+    },
+    "bastionsubnetprefix":{
+      "type": "string",
+      "metadata": {
+        "description":"Value of the bastion subnet prefix"
+      }
+    },
+    
+    
+   
+    "testSubnetPrefix": {
+      "type": "string",
+     
+      "metadata": {
+        "description": "Value of the test Subnet Prefix"
+      }
+    },
+    "appgatewaySubnetPrefix": {
+      "type": "string",
+    
+      "metadata": {
+        "description": "Value of the application Gateway Subnet Prefix"
+      }
+    },
+    "webSubnetPrefix": {
+      "type": "string",
+      
+      "metadata": {
+        "description": "Value of the Web Subnet Prefix"
+      }
+    },
+    "appSubnetPrefix": {
+      "type": "string",
+     
+      "metadata": {
+        "description": "Value of the App Subnet Prefix"
+      }
+    },
+    "dbSubnetPrefix": {
+      "type": "string",
+     
+      "metadata": {
+        "description": "Value of the DB Subnet Prefix"
+      }
+    },
+    "adSubnetPrefix": {
+      "type": "string",
+      
+      "metadata": {
+        "description": "Value of the AD Subnet Prefix"
+      }
+    },
+    
+    "imgSubnetPrefix": {
+      "type": "string",
+      
+      "metadata": {
+        "description": "Value of the Image Subnet Prefix"
+      }
+    },
+    "utilitysubnetPrefix": {
+      "type": "string",
+      
+      "metadata": {
+        "description": "Value of the utility Subnet Prefix"
+      }
+    },
+     "bastionSubnetName": {
+      "type": "string",
+     
+      "metadata": {
+        "description": "Name of the Bastion Subnet"
+      }
+    },
+    "testSubnetName": {
+      "type": "string",
+     
+      "metadata": {
+        "description": "Name of the Management Subnet"
+      }
+    },
+     "gatewaySubnetName": {
+      "type": "string",
+      "defaultValue": "GatewaySubnet",
+      "metadata": {
+        "description": "Name of the Gateway Subnet"
+      }
+    },
+   
+   
+    
+    
+   
+    "appgatewaySubnetName": {
+      "type": "string",
+      
+      "metadata": {
+        "description": "Name of the application Gateway Subnet"
+      }
+    },
+    "webSubnetName": {
+      "type": "string",
+     
+      "metadata": {
+        "description": "Name of the Web-DMZ Subnet"
+      }
+    },
+    "appSubnetName": {
+      "type": "string",
+      
+      "metadata": {
+        "description": "Name of the App Subnet"
+      }
+    },
+    "dbSubnetName": {
+      "type": "string",
+     
+      "metadata": {
+        "description": "Name of the DB Subnet"
+      }
+    },
+    "adSubnetName": {
+      "type": "string",
+     
+      "metadata": {
+        "description": "Name of the AD Subnet"
+      }
+    },
+   
+    "ImgSubnetName": {
+      "type": "string",
+      
+      "metadata": {
+        "description": "Name of the Management Subnet"
+      }
+    },
+    "UtilitySubnetName": {
+      "type": "string",
+      
+      "metadata": {
+        "description": "Name of the Utility Subnet"
+      }
+    },
+    
+    "taggingApplicationvalue": {
+      "type": "string",
+      "defaultValue": "AirVault DEV",
+      "metadata": {
+        "description": "Tagging value of the Application Name"
+      }
+    },
+    "tagginguaivalue": {
+      "type": "string",
+      "defaultValue": "uai3026608",
+      "metadata": {
+        "description": "Tagging value of the Unique Application Identifier"
+      }
+    },
+    "taggingenvvalue": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tagging value of the environment"
+      }
+    },
+    "taggingcontactvalue": {
+      "type": "string",
+      "defaultValue": "Airvaultopsengineering@ge.com",
+      "metadata": {
+        "description": "Tagging value of the point of contact"
+      }
+    },
+    "taggingpreservevalue": {
+      "type": "string",
+      "defaultValue": "TRUE",
+      "metadata": {
+        "description": "Tagging value of the preserver"
+      }
+    },
+     "ArmBlobStorageUrlFromKeyVault": {
+        "type": "string",
+          "metadata": {
+            "description": "Blob Storage URL retrieved from Key Vault"
+          }
+      },
+       "ArmSasTokenFromKeyVault": {
+        "type": "securestring",
+          "metadata": {
+            "description": "SAS token retrieved from Key Vault"
+          }
+      },
+      "Env":{
+        "type":"string",
+        "metadata": {
+            "description": "Environment variable"
+          }
+      }
+  },
+  "variables": {
+    
+    
+  },
+  "resources": [
+     {
+            "name": "linkedTemplateNSGIntegration",
+            "type": "Microsoft.Resources/deployments",
+            
+            "apiVersion": "2018-05-01",
+            "dependsOn": [
+                    "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+                  ],
+            "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+               "uri": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/NETWORKING/VNETNSG.json'), uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]"
+              },
+               "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), concat(parameters('Env'),'/NETWORKING/VNETNSG.parameters.json')), uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]",
+                    "contentVersion": "1.0.0.0"
+                }
+             
+               
+            }
+          },
+    {
+      "apiVersion": "2018-10-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('vnetName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ApplicationName": "[parameters('taggingApplicationvalue')]",
+        "uai": "[parameters('tagginguaivalue')]",
+        "env": "[parameters('taggingenvvalue')]",
+        "SupportEmail": "[parameters('taggingcontactvalue')]",
+        "preserve": "[parameters('taggingpreservevalue')]"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "dhcpOptions": {
+          "dnsServers": "[parameters('dnsServerIPAddress')]"
+        },
+        "subnets": [
+          {
+            "name": "[parameters('gatewaySubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
+               "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                  "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+            }
+          },
+          {
+            "name": "[parameters('webSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('webSubnetPrefix')]",
+              "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                   "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+
+            }
+          },
+          {
+            "name": "[parameters('appSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('appSubnetPrefix')]",
+                "serviceEndpoints":[
+                   {
+                    "service": "Microsoft.Storage",
+                    "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                   },
+                  {
+                   
+                  "service": "Microsoft.KeyVault",
+                   "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+                ]
+            }
+          },
+          {
+            "name": "[parameters('dbSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('dbSubnetPrefix')]",
+                "serviceEndpoints":[
+                   {
+                    "service": "Microsoft.Storage",
+                    "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                   },
+                  {
+                   
+                  "service": "Microsoft.KeyVault",
+                   "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+                ]
+            }
+          },
+          {
+            "name": "[parameters('adSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('adSubnetPrefix')]",
+               "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                   "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+
+            }
+          },
+          
+          {
+            "name": "[parameters('ImgSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('imgSubnetPrefix')]",
+              "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                  "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+              
+
+            }
+          },
+          {
+            "name": "[parameters('bastionSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('bastionsubnetprefix')]"
+              
+
+            }
+          },
+           {
+            "name": "[parameters('testSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('testSubnetPrefix')]",
+              "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                  "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+               
+
+            }
+          },
+           {
+            "name": "[parameters('appgatewaySubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('appgatewaySubnetPrefix')]",
+              "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                   "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+            }
+          },
+          {
+            "name": "[parameters('UtilitySubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('utilitysubnetPrefix')]",
+               "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                   "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+
+            }
+          }
+        ]
+      }
+    }
+  ],
+        "outputs": {
+        }
+      }

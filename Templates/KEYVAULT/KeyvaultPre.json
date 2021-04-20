@@ -1,0 +1,153 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Vault"
+      }
+    },
+    "tenantId": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]",
+      "metadata": {
+        "description": "Tenant Id of the subscription. Get using Get-AzureRmSubscription cmdlet or Get Subscription API"
+      }
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Standard",
+        "Premium"
+      ],
+      "metadata": {
+        "description": "SKU for the vault"
+      }
+    },
+    "enableVaultForDeployment": {
+      "type": "bool",
+
+      "allowedValues": [
+        true,
+        false
+      ],
+      "metadata": {
+        "description": "Specifies if the vault is enabled for a VM deployment"
+      }
+    },
+    "enableVaultForDiskEncryption": {
+      "type": "bool",
+
+      "allowedValues": [
+        true,
+        false
+      ],
+      "metadata": {
+        "description": "Specifies if the azure platform has access to the vault for enabling disk encryption scenarios."
+      }
+    },
+    "enabledForTemplateDeployment": {
+      "type": "bool",
+
+      "allowedValues": [
+        true,
+        false
+      ],
+      "metadata": {
+        "description": "Specifies whether Azure Resource Manager is permitted to deploy the template in the key vault."
+      }
+    },
+    "taggingApplicationvalue": {
+      "type": "string",
+      "defaultValue": "AirVault DEV",
+      "metadata": {
+        "description": "Tagging value of the Application Name"
+      }
+    },
+    "tagginguaivalue": {
+      "type": "string",
+      "defaultValue": "uai3026608",
+      "metadata": {
+        "description": "Tagging value of the Unique Application Identifier"
+      }
+    },
+    "taggingenvvalue": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tagging value of the environment"
+      }
+    },
+    "taggingcontactvalue": {
+      "type": "string",
+      "defaultValue": "Airvaultopsengineering@ge.com",
+      "metadata": {
+        "description": "Tagging value of the point of contact"
+      }
+    },
+    "taggingpreservevalue": {
+      "type": "string",
+      "defaultValue": "TRUE",
+      "metadata": {
+        "description": "Tagging value of the preserver"
+      }
+    },
+    "secretsObject": {
+      "type": "secureObject",
+      "defaultValue": "{}",
+      "metadata": {
+        "description": "Specifies all secrets {\"secretName\":\"\",\"secretValue\":\"\"} wrapped in a secure object."
+      }
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[parameters('keyVaultName')]",
+      "apiVersion": "2018-02-14",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ApplicationName": "[parameters('taggingApplicationvalue')]",
+        "uai": "[parameters('tagginguaivalue')]",
+        "env": "[parameters('taggingenvvalue')]",
+        "SupportEmail": "[parameters('taggingcontactvalue')]",
+        "preserve": "[parameters('taggingpreservevalue')]"
+      },
+      "properties": {
+        "enabledForDeployment": "[parameters('enableVaultForDeployment')]",
+        "enabledForDiskEncryption": "[parameters('enableVaultForDiskEncryption')]",
+        "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
+        "tenantId": "[parameters('tenantId')]",
+        "sku": {
+          "name": "[parameters('skuName')]",
+          "family": "A"
+
+        },
+        "networkAcls": {
+          "defaultAction": "Deny",
+          "bypass": "AzureServices"
+        },
+        "accessPolicies": []
+      }
+    },
+     {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(parameters('keyVaultName'), '/', parameters('secretsObject').secrets[copyIndex()].secretName)]",
+      "apiVersion": "2018-02-14",
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', parameters('keyVaultName'))]"
+      ],
+      "copy": {
+        "name": "secretsCopy",
+        "count": "[length(parameters('secretsObject').secrets)]"
+      },
+      "properties": {
+        "value": "[parameters('secretsObject').secrets[copyIndex()].secretValue]"
+      }
+    }
+  ]
+}

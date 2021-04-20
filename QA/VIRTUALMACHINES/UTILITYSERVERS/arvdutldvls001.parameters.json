@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "env": {
+      "value": "qa"
+    },
+    "VMName": {
+      "value": "arvqutldvls00"
+    },
+    "virtualMachineImage": {
+      "value": "/subscriptions/30f6e521-a907-43a7-8c79-70312e318675/resourceGroups/ds-services/providers/Microsoft.Compute/galleries/GoldenImage/images/WindowsServer-2019"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_A3"
+    },
+    "virtualMachineAdminUserName": {
+      "value": "arvazadmin"
+    },
+    "VMCount": {
+      "value": 5
+    },
+    
+    "storageType": {
+      "value": "Standard_LRS"
+    },
+    "virtualMachineAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "devvmpwd"
+      }
+    },
+    "ArmBlobStorageUrlFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "armblobstorageurl"
+  
+      }
+    },
+    "ArmSasTokenFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "armsastoken"
+  
+      }
+    },
+    "keyEncryptionKeyURL": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "diskencryptionsecret"
+  
+      }
+    },
+    "domainJoinUserPassword": {
+      "reference": {
+          "keyVault": {
+            "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+          },
+          "secretName": "addomainpwd"
+        }
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault QA"
+    },
+    "taggingenvvalue"  : {
+      "value": "qa"
+    }
+  }
+}

@@ -1,0 +1,165 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "loadBalancerName": {
+            "type": "String"
+        },
+        "virtualNetworkExternalId": {
+            "type": "String"
+        },
+        "taggingapplicationname":{
+             "type": "string",
+            "metadata": {
+             "description": "Tagging value of the Unique Application Identifier"
+           }
+        },
+        "tagginguaivalue": {
+            "type": "string",
+            "metadata": {
+             "description": "Tagging value of the Unique Application Identifier"
+           }
+        },
+        "taggingenvvalue": {
+            "type": "string",
+            "metadata": {
+                "description": "Tagging value of the environment"
+            }
+        },
+        "taggingcontactvalue": {
+            "type": "string",
+            "metadata": {
+                "description": "Tagging value of the point of contact"
+            }
+       },
+        "taggingpreservevalue": {
+            "type": "string",
+            "defaultValue": "TRUE",
+            "metadata": {
+                "description": "Tagging value of the preserver"
+            }
+        },
+        "privateipaddress": {
+            "type": "string",
+             "metadata": {
+                "description": "The private IP address of the IP configuration."
+            }
+        },
+        "Env": {
+            "type": "string"
+        },
+        "location": {
+            "type": "String",
+            "allowedValues": [
+                "australiacentral", 
+                "australiaeast", 
+                "australiasoutheast", 
+                "brazilsouth",
+                "canadacentral", 
+                "centralindia", 
+                "centralus", 
+                "eastasia", 
+                "eastus", 
+                "eastus2", 
+                "francecentral", 
+                "japaneast", 
+                "koreacentral", 
+                "northcentralus", 
+                "northeurope", 
+                "southafricanorth", 
+                "southcentralus", 
+                "southeastasia", 
+                "uksouth", 
+                "ukwest", 
+                "westcentralus", 
+                "westeurope", 
+                "westus", 
+                "westus2" 
+            ], 
+            "metadata": {
+            "description": "Specifies the location in which to create the load balancer."
+            }
+        }
+    },
+    "variables": {
+
+    },
+    "resources": [
+        {
+           "type": "Microsoft.Network/loadBalancers",
+           "apiVersion": "2019-09-01",
+           "name": "[parameters('loadBalancerName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "ApplicationName":  "[parameters('taggingapplicationname')]",
+                "uai": "[parameters('tagginguaivalue')]",
+                "env": "[parameters('taggingenvvalue')]",
+                "SupportEmail":  "[parameters('taggingcontactvalue')]",
+                "preserve":  "[parameters('taggingpreservevalue')]"
+
+            },
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "LoadBalancerFrontEnd",
+                        "properties": {
+                            "privateIPAddress": "[parameters('privateipaddress')]",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworkExternalId'),  format('/subnets/gav-arv-{0}-web-sn-001', parameters('Env')))]"
+                            },
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[format('gav-arv-{0}-int-ilb-bpl',parameters('Env'))]",
+                        "properties": {}
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "[format('gav-arv-{0}-int-ilb-lbr',parameters('Env'))]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName')), '/frontendIPConfigurations/LoadBalancerFrontEnd')]"
+                            },
+                            "frontendPort": 80,
+                            "backendPort": 80,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 4,
+                            "protocol": "Tcp",
+                            "enableTcpReset": false,
+                            "loadDistribution": "Default",
+                            "disableOutboundSnat": false,
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'), format('/backendAddressPools/gav-arv-{0}-int-ilb-bpl', parameters('Env'))))]"
+                            },
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'), format('/probes/gav-arv-{0}-int-ilb-hpb', parameters('Env'))))]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "[format('gav-arv-{0}-int-ilb-hpb',parameters('Env'))]",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": 80,
+                            "intervalInSeconds": 15,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ],
+                "inboundNatRules": [],
+                "outboundRules": [],
+                "inboundNatPools": []
+            }
+        }
+    ]
+}

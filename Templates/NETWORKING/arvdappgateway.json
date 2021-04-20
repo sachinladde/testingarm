@@ -1,0 +1,638 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sslCertificateData": {
+      "type": "string",
+      "metadata": {
+        "description": "The base-64 encoded SSL certificate PFX data. Must be supplied via a parameters file references to a Key Vault / Secret Name."
+      }
+    },
+    "sslCertificatePassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the cert data."
+      }
+    },
+    "virtualNetworkRG": {
+      "type": "string",
+      "metadata": {
+        "description": "virtual network name"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "metadata": {
+        "description": "virtual network name"
+      }
+    },
+    "SkuTier": {
+      "type": "string",
+      "allowedValues": [
+        "Standard",
+        "Standard_V2",
+        "WAF",
+        "WAF_V2"
+      ]
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet Name"
+      }
+    },
+    "applicationGatewayName": {
+      "type": "string",
+      "metadata": {
+        "description": "application gateway name"
+      }
+    },
+    "applicationGatewaySize": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_Small",
+        "Standard_Medium",
+        "Standard_Large",
+        "WAF_Medium",
+        "WAF_Large",
+        "WAF_V2"
+      ],
+      "metadata": {
+        "description": "application gateway size"
+      }
+    },
+    "applicationGatewayInstanceCount": {
+      "type": "int",
+      "allowedValues": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "metadata": {
+        "description": "application gateway instance count"
+      }
+    },
+    "frontendPort_80": {
+      "type": "int",
+      "defaultValue": 80,
+      "metadata": {
+        "description": "application gateway first front end port"
+      }
+    },
+    "frontendPort_443": {
+      "type": "int",
+      "defaultValue": 443,
+      "metadata": {
+        "description": "application gateway second front end port"
+      }
+    },
+    "cookieBasedAffinity": {
+      "type": "string",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "metadata": {
+        "description": "cookie based affinity"
+      }
+    },
+    "taggingApplicationvalue": {
+      "type": "string",
+      "defaultValue": "AirVault DEV",
+      "metadata": {
+        "description": "Tagging value of the Application Name"
+      }
+    },
+    "tagginguaivalue": {
+      "type": "string",
+      "defaultValue": "uai3026608",
+      "metadata": {
+        "description": "Tagging value of the Unique Application Identifier"
+      }
+    },
+    "taggingenvvalue": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tagging value of the environment"
+      }
+    },
+    "taggingcontactvalue": {
+      "type": "string",
+      "defaultValue": "Airvaultopsengineering@ge.com",
+      "metadata": {
+        "description": "Tagging value of the point of contact"
+      }
+    },
+    "taggingpreservevalue": {
+      "type": "string",
+      "defaultValue": "TRUE",
+      "metadata": {
+        "description": "Tagging value of the preserver"
+      }
+    },
+    "Env": {
+      "type": "string"
+    },
+    "zfpNicIds": {
+      "type": "array",
+      "metadata": {
+        "description": "An arry of nic resource ids for the zpf servers"
+      }
+    },
+    "workflowNicIds": {
+      "type": "array",
+      "metadata": {
+        "description": "An arry of nic resource ids for the workflow servers"
+      }
+    },
+    "scanNicIds": {
+      "type": "array",
+      "metadata": {
+        "description": "An arry of nic resource ids for the scan servers"
+      }
+    },
+    "reportNicIds": {
+      "type": "array",
+      "metadata": {
+        "description": "An arry of nic resource ids for the report servers"
+      }
+    }
+  },
+  "variables": {
+    "vnetId": "[resourceId(parameters('virtualNetworkRG'),'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+    "SubnetRef": {
+      "gatewaysubnetref": "[concat(variables('vnetId'),'/subnets/',parameters('subnetName'))]"
+    },
+    "applicationGatewayID": "[resourceId('Microsoft.Network/applicationGateways',parameters('applicationGatewayName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-08-01",
+      "name": "[parameters('applicationGatewayName')]",
+      "type": "Microsoft.Network/applicationGateways",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ApplicationName": "[parameters('taggingApplicationvalue')]",
+        "uai": "[parameters('tagginguaivalue')]",
+        "env": "[parameters('taggingenvvalue')]",
+        "SupportEmail": "[parameters('taggingcontactvalue')]",
+        "preserve": "[parameters('taggingpreservevalue')]"
+      },
+      "dependsOn": [
+      ],
+      "properties": {
+        "sku": {
+          "name": "[parameters('applicationGatewaySize')]",
+          "tier": "[parameters('SkuTier')]",
+          "capacity": "[parameters('applicationGatewayInstanceCount')]"
+        },
+        "gatewayIPConfigurations": [
+          {
+            "name": "appGatewayIpConfig",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetRef').gatewaysubnetref]"
+              }
+            }
+          }
+        ],
+        "frontendIPConfigurations": [
+          {
+            "name": "appgatewayFrontendPrivateIP",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef').gatewaysubnetref]"
+              }
+            }
+          }
+        ],
+        "frontendPorts": [
+          {
+            "name": "appgatewayFrontendPort-80",
+            "properties": {
+              "Port": "[parameters('frontendPort_80')]"
+            }
+          },
+          {
+            "name": "appgatewayFrontendPort-443",
+            "properties": {
+              "Port": "[parameters('frontendPort_443')]"
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "arvzfpbackendpool-001",
+            "properties": {
+              "copy": [
+                {
+                  "name": "BackendAddresses",
+                  "count": "[length(parameters('zfpNicIds'))]",
+                  "input": {
+                    "IpAddress": "[reference(parameters('zfpNicIds')[copyIndex('BackendAddresses')], '2019-09-01').ipConfigurations[0].properties.privateIPAddress]"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "arvworkflowbackendpool-001",
+            "properties": {
+              "copy": [
+                {
+                  "name": "BackendAddresses",
+                  "count": "[length(parameters('workflowNicIds'))]",
+                  "input": {
+                    "IpAddress": "[reference(parameters('workflowNicIds')[copyIndex('BackendAddresses')], '2019-09-01').ipConfigurations[0].properties.privateIPAddress]"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "arvscanbackendpool-001",
+            "properties": {
+              "copy": [
+                {
+                  "name": "BackendAddresses",
+                  "count": "[length(parameters('scanNicIds'))]",
+                  "input": {
+                    "IpAddress": "[reference(parameters('scanNicIds')[copyIndex('BackendAddresses')], '2019-09-01').ipConfigurations[0].properties.privateIPAddress]"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "arvreportsbackendpool-001",
+            "properties": {
+              "copy": [
+                {
+                  "name": "BackendAddresses",
+                  "count": "[length(parameters('reportNicIds'))]",
+                  "input": {
+                    "IpAddress": "[reference(parameters('reportNicIds')[copyIndex('BackendAddresses')], '2019-09-01').ipConfigurations[0].properties.privateIPAddress]"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "backendHttpSettingsCollection": [
+          {
+            "name": "appGatewayBackendHttpSettings-80",
+            "properties": {
+              "Port": "[parameters('frontendPort_80')]",
+              "Protocol": "Http",
+              "CookieBasedAffinity": "[parameters('cookieBasedAffinity')]"
+            }
+          }
+        ],
+        "httpListeners": [
+          {
+            "name": "[format('arv{0}httplistener-80', parameters('Env'))]",
+            "properties": {
+              "FrontendIpConfiguration": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendIPConfigurations/appgatewayFrontendPrivateIP')]"
+              },
+              "FrontendPort": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendPorts/appgatewayFrontendPort-80')]"
+              },
+              "Protocol": "Http",
+              "hostName": "[format('{0}airvault.criticaltech.com',parameters('Env'))]",
+              "SslCertificate": null
+            }
+          },
+          {
+            "name": "[format('arv{0}httpslistener-443',parameters('Env'))]",
+            "properties": {
+              "FrontendIpConfiguration": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendIPConfigurations/appgatewayFrontendPrivateIP')]"
+              },
+              "FrontendPort": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendPorts/appgatewayFrontendPort-443')]"
+              },
+              "Protocol": "Https",
+              "hostName": "[format('{0}airvault.criticaltech.com',parameters('Env'))]",
+              "SslCertificate": {
+                "id": "[concat(variables('applicationGatewayID'), '/sslCertificates/appGwSslCertificate')]"
+              }
+            }
+          },
+          {
+            "name": "[format('arv{0}workflowhttplistener-80', parameters('Env'))]",
+            "properties": {
+              "FrontendIpConfiguration": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendIPConfigurations/appgatewayFrontendPrivateIP')]"
+              },
+              "FrontendPort": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendPorts/appgatewayFrontendPort-80')]"
+              },
+              "Protocol": "Http",
+              "hostName": "[format('{0}workflow.criticaltech.com',parameters('Env'))]",
+              "SslCertificate": null
+            }
+          },
+          {
+            "name": "[format('arv{0}workflowhttpslistener-443',parameters('Env'))]",
+            "properties": {
+              "FrontendIpConfiguration": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendIPConfigurations/appgatewayFrontendPrivateIP')]"
+              },
+              "FrontendPort": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendPorts/appgatewayFrontendPort-443')]"
+              },
+              "Protocol": "Https",
+              "hostName": "[format('{0}workflow.criticaltech.com',parameters('Env'))]",
+              "SslCertificate": {
+                "id": "[concat(variables('applicationGatewayID'), '/sslCertificates/appGwSslCertificate')]"
+              }
+            }
+          },
+          {
+            "name": "[format('arv{0}scanhttplistener-80', parameters('Env'))]",
+            "properties": {
+              "FrontendIpConfiguration": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendIPConfigurations/appgatewayFrontendPrivateIP')]"
+              },
+              "FrontendPort": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendPorts/appgatewayFrontendPort-80')]"
+              },
+              "Protocol": "Http",
+              "hostName": "[format('{0}scan.criticaltech.com',parameters('Env'))]",
+              "SslCertificate": null
+            }
+          },
+          {
+            "name": "[format('arv{0}scanhttpslistener-443',parameters('Env'))]",
+            "properties": {
+              "FrontendIpConfiguration": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendIPConfigurations/appgatewayFrontendPrivateIP')]"
+              },
+              "FrontendPort": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendPorts/appgatewayFrontendPort-443')]"
+              },
+              "Protocol": "Https",
+              "hostName": "[format('{0}scan.criticaltech.com',parameters('Env'))]",
+              "SslCertificate": {
+                "id": "[concat(variables('applicationGatewayID'), '/sslCertificates/appGwSslCertificate')]"
+              }
+            }
+          },
+          {
+            "name": "[format('arv{0}reportshttplistener-80', parameters('Env'))]",
+            "properties": {
+              "FrontendIpConfiguration": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendIPConfigurations/appgatewayFrontendPrivateIP')]"
+              },
+              "FrontendPort": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendPorts/appgatewayFrontendPort-80')]"
+              },
+              "Protocol": "Http",
+              "hostName": "[format('{0}reports.criticaltech.com',parameters('Env'))]",
+              "SslCertificate": null
+            }
+          },
+          {
+            "name": "[format('arv{0}reportshttpslistener-443',parameters('Env'))]",
+            "properties": {
+              "FrontendIpConfiguration": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendIPConfigurations/appgatewayFrontendPrivateIP')]"
+              },
+              "FrontendPort": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendPorts/appgatewayFrontendPort-443')]"
+              },
+              "Protocol": "Https",
+              "hostName": "[format('{0}reports.criticaltech.com',parameters('Env'))]",
+              "SslCertificate": {
+                "id": "[concat(variables('applicationGatewayID'), '/sslCertificates/appGwSslCertificate')]"
+              }
+            }
+          }
+        ],
+        "requestRoutingRules": [
+          {
+            "Name": "[format('arv{0}httpsRule-01',parameters('Env'))]",
+            "properties": {
+              "RuleType": "Basic",
+              "httpListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}HttpsListener-443', parameters('Env')))]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(variables('applicationGatewayID'), '/backendAddressPools/arvzfpbackendpool-001')]"
+              },
+              "backendHttpSettings": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/backendHttpSettingsCollection/appGatewayBackendHttpSettings-80')]"
+              }
+            }
+          },
+          {
+            "Name": "[format('arv{0}httpRule-02', parameters('Env'))]",
+            "properties": {
+              "RuleType": "Basic",
+              "httpListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}HttpListener-80', parameters('Env')))]"
+              },
+              "redirectConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/redirectConfigurations/arv{0}httpRule-02',parameters('Env')))]"
+              }
+
+            }
+          },
+          {
+            "Name": "[format('arv{0}workflowhttpsRule-01',parameters('Env'))]",
+            "properties": {
+              "RuleType": "Basic",
+              "httpListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}workflowhttpslistener-443', parameters('Env')))]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(variables('applicationGatewayID'), '/backendAddressPools/arvworkflowbackendpool-001')]"
+              },
+              "backendHttpSettings": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/backendHttpSettingsCollection/appGatewayBackendHttpSettings-80')]"
+              }
+            }
+          },
+          {
+            "Name": "[format('arv{0}workflowhttpRule-02', parameters('Env'))]",
+            "properties": {
+              "RuleType": "Basic",
+              "httpListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}workflowhttplistener-80', parameters('Env')))]"
+              },
+              "redirectConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/redirectConfigurations/arv{0}workflowhttpRule-02',parameters('Env')))]"
+              }
+
+            }
+          },
+          {
+            "Name": "[format('arv{0}scanhttpsRule-01',parameters('Env'))]",
+            "properties": {
+              "RuleType": "Basic",
+              "httpListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}scanhttpslistener-443', parameters('Env')))]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(variables('applicationGatewayID'), '/backendAddressPools/arvscanbackendpool-001')]"
+              },
+              "backendHttpSettings": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/backendHttpSettingsCollection/appGatewayBackendHttpSettings-80')]"
+              }
+            }
+          },
+          {
+            "Name": "[format('arv{0}scanhttpRule-02', parameters('Env'))]",
+            "properties": {
+              "RuleType": "Basic",
+              "httpListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}scanhttplistener-80', parameters('Env')))]"
+              },
+              "redirectConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/redirectConfigurations/arv{0}scanhttpRule-02',parameters('Env')))]"
+              }
+
+            }
+          },
+          {
+            "Name": "[format('arv{0}reportshttpsRule-01',parameters('Env'))]",
+            "properties": {
+              "RuleType": "Basic",
+              "httpListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}reportshttpslistener-443', parameters('Env')))]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(variables('applicationGatewayID'), '/backendAddressPools/arvreportsbackendpool-001')]"
+              },
+              "backendHttpSettings": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/backendHttpSettingsCollection/appGatewayBackendHttpSettings-80')]"
+              }
+            }
+          },
+          {
+            "Name": "[format('arv{0}reportshttpRule-02', parameters('Env'))]",
+            "properties": {
+              "RuleType": "Basic",
+              "httpListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}reportshttplistener-80', parameters('Env')))]"
+              },
+              "redirectConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/redirectConfigurations/arv{0}reportshttpRule-02',parameters('Env')))]"
+              }
+
+            }
+          }
+        ],
+        "redirectConfigurations": [
+          {
+            "name": "[format('arv{0}httpRule-02', parameters('Env'))]",
+            "properties": {
+              "redirectType": "Permanent",
+              "targetListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}HttpsListener-443',parameters('Env')))]"
+              },
+              "includePath": true,
+              "includeQueryString": true,
+              "requestRoutingRules": [
+                {
+                  "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/requestRoutingRules/arv{0}httpRule-02', parameters('Env')))]"
+                }
+              ]
+            }
+          },
+          {
+            "name": "[format('arv{0}workflowhttpRule-02', parameters('Env'))]",
+            "properties": {
+              "redirectType": "Permanent",
+              "targetListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}workflowHttpsListener-443',parameters('Env')))]"
+              },
+              "includePath": true,
+              "includeQueryString": true,
+              "requestRoutingRules": [
+                {
+                  "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/requestRoutingRules/arv{0}workflowhttpRule-02', parameters('Env')))]"
+                }
+              ]
+            }
+          },
+          {
+            "name": "[format('arv{0}scanhttpRule-02', parameters('Env'))]",
+            "properties": {
+              "redirectType": "Permanent",
+              "targetListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}scanHttpsListener-443',parameters('Env')))]"
+              },
+              "includePath": true,
+              "includeQueryString": true,
+              "requestRoutingRules": [
+                {
+                  "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/requestRoutingRules/arv{0}scanhttpRule-02', parameters('Env')))]"
+                }
+              ]
+            }
+          },
+          {
+            "name": "[format('arv{0}reportshttpRule-02', parameters('Env'))]",
+            "properties": {
+              "redirectType": "Permanent",
+              "targetListener": {
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/httpListeners/arv{0}reportsHttpsListener-443',parameters('Env')))]"
+              },
+              "includePath": true,
+              "includeQueryString": true,
+              "requestRoutingRules": [
+                {
+                  "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), format('/requestRoutingRules/arv{0}reportshttpRule-02', parameters('Env')))]"
+                }
+              ]
+            }
+          }
+        ],
+        "sslPolicy": {
+          "policyType": "Custom",
+          "minProtocolVersion": "TLSv1_2",
+          "cipherSuites": [
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
+          ]
+        },
+        "sslCertificates": [
+          {
+            "name": "appGwSslCertificate",
+            "properties": {
+              "data": "[parameters('sslCertificateData')]",
+              "password": "[parameters('sslCertificatePassword')]"
+            }
+          }
+        ],
+        "webApplicationFirewallConfiguration": {
+          "enabled": true,
+          "firewallMode": "Detection",
+          "ruleSetType": "OWASP",
+          "ruleSetVersion": "3.0"
+        },
+        "probes": [
+        ]
+      }
+    }
+  ]
+}

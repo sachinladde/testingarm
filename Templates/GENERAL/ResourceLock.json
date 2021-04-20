@@ -1,0 +1,31 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+
+        "Env":{
+            "type": "string",
+            "metadata": {
+             "description": "Value of the environment"
+            }
+        },
+        "resourceGroupName":{
+            "type":"string",
+            "metadata": {
+                "description": "Value of the Resource Group Name "
+            }
+        }
+        
+    },
+    "resources": [
+        {
+            "name": "[concat('DeleteLock-', parameters('Env'), '-', parameters('resourceGroupName'))]",
+            "type": "Microsoft.Authorization/locks",
+            "apiVersion": "2017-04-01",
+            "properties": {
+              "level": "CanNotDelete",
+              "notes": "Prevent deletion of the resourceGroup"
+            }
+        }
+    ]
+}

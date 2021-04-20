@@ -1,0 +1,530 @@
+{
+
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "VMName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Virtual machine"
+      }
+    },
+    "virtualMachineImage": {
+      "type": "string",
+      "metadata": {
+        "description": "Image of the Virtual Machine"
+      }
+    },
+    "AVailabilitySetprovision": {
+      "type": "string",
+      "allowedValues": [
+        "Yes",
+        "No"
+      ],
+      "metadata": {
+        "description": "Select whether the availability set should be in provisioned or not."
+      }
+    },
+    "storageType": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_LRS",
+        "StandardSSD_LRS",
+        "Premium_LRS",
+        "UltraSSD_LRS"
+      ]
+    },
+
+    "virtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_A4_V2",
+      "allowedValues": [
+        "Standard_A4",
+        "Standard_A3",
+        "Standard_A4m_V2",
+        "Standard_A4_V2",
+        "Standard_G4",
+        "Standard_DS4_V2"
+
+      ],
+      "metadata": {
+        "description": "Size of the Virtual machine"
+      }
+    },
+    "VMCount": {
+      "type": "int",
+
+      "minValue": 1,
+      "maxValue": 5,
+      "metadata": {
+        "description": "Number of VMs to deploy, limit 5 since this sample is using a single storage account"
+      }
+    },
+   
+    "virtualMachineAdminUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "UserName of the Virtual machine"
+      }
+    },
+    "virtualMachineAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password of the Virtual machine"
+      }
+    },
+    "virtualNetworkRG": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Resource group of the virtual network"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+
+
+      "metadata": {
+        "description": "virtual network name"
+      }
+    },
+    "SubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet name for the Web VM"
+      }
+    },
+    "OSDisk": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the OS disl of the Virtual machine"
+      }
+
+    },
+    "diagnosticStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the diagnostic storage account"
+      }
+    },
+
+    "NicName": {
+      "type": "string",
+      "metadata": {
+        "description": "Network Interface card prefix of the Virtual machine"
+      }
+    },
+
+    "availabilitySetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Availability Set"
+      }
+    },
+    "availabilitySetPlatformFaultDomainCount": {
+      "type": "string",
+      "metadata": {
+        "description": "Number of fault domains for availability set"
+      }
+    },
+    "availabilitySetPlatformUpdateDomainCount": {
+      "type": "string",
+      "metadata": {
+        "description": "Number of Update domains for availability set"
+      }
+    },
+   
+    
+    
+    "taggingApplicationvalue": {
+      "type": "string",
+      "defaultValue": "AirVault DEV",
+      "metadata": {
+        "description": "Tagging value of the Application Name"
+      }
+    },
+    "tagginguaivalue": {
+      "type": "string",
+      "defaultValue": "uai3026608",
+      "metadata": {
+        "description": "Tagging value of the Unique Application Identifier"
+      }
+    },
+    "taggingenvvalue": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tagging value of the environment"
+      }
+    },
+    "taggingcontactvalue": {
+      "type": "string",
+      "defaultValue": "Airvaultopsengineering@ge.com",
+      "metadata": {
+        "description": "Tagging value of the point of contact"
+      }
+    },
+    "taggingpreservevalue": {
+      "type": "string",
+      "defaultValue": "TRUE",
+      "metadata": {
+        "description": "Tagging value of the preserver"
+      }
+    },
+    "ArmBlobStorageUrlFromKeyVault": {
+      "type": "string",
+        "metadata": {
+          "description": "Blob Storage URL retrieved from Key Vault"
+        }
+    },
+     "ArmSasTokenFromKeyVault": {
+      "type": "securestring",
+        "metadata": {
+          "description": "SAS token retrieved from Key Vault"
+        }
+    },
+      "TentacleApiKey": {
+        "type": "securestring",
+          "metadata": {
+            "description": "Octopus API Key retrieved from Key Vault"
+          }
+      },
+      "tentacleRoles": {
+        "type": "string",
+          "metadata": {
+            "description": "tentacle roles" 
+          }
+      },
+      "tentacleEnvironments": {
+        "type": "string",
+          "metadata": {
+            "description": "tentacle environments"
+          }
+      },
+      "keyEncryptionKeyURL": {
+        "type": "string",
+        "metadata": {
+          "description": "key encryption key url of the key vault id"
+        }
+      },
+       "domainJoinUserPassword": {
+        "type": "securestring",
+        "metadata": {
+          "description": "domain password to add the virtual machines with domain server"
+        } 
+    },
+     "asgName": {
+       "type": "string",
+       "metadata": {
+         "description": "Name of the Application Security Group assigned to this VM"
+       }
+      }
+     
+
+
+  },
+  "variables": {
+    "vnetId": "[resourceId(parameters('virtualNetworkRG'),'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+    "SubnetRef": {
+      "appsubnetref": "[concat(variables('vnetId'),'/subnets/',parameters('SubnetName'))]"
+    },
+   
+    "availabilitySetId": {
+      "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
+    }
+  },
+  "resources": [
+    {
+            "name": "[concat('linkedTemplateDiskEncryption-pdfls',copyIndex(1))]",
+            "type": "Microsoft.Resources/deployments",
+            "copy": {
+              "name": "tempCopy",
+              "count": "[parameters('VMCount')]"
+            },
+            "apiVersion": "2018-05-01",
+            "dependsOn": [
+                    "[concat('Microsoft.Compute/virtualMachines/', parameters('VMName'), copyIndex(1))]"
+                  ],
+            "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+               "uri": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/VIRTUALMACHINES/AGENTS/DISKENCRYPTION.json'), uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]"
+              },
+              "parameters": {
+                "vmName":{"value": "[concat(parameters('VMName'), copyIndex(1))]"},
+                "keyEncryptionKeyURL":{"value":"[parameters('keyEncryptionKeyURL')]"},
+                "env":{"value": "[parameters('taggingenvvalue')]"}
+              }
+               
+            }
+          },
+       {
+            "name": "[concat('linkedTemplateDomainJoin-pdfls',copyIndex(1))]",
+            "type": "Microsoft.Resources/deployments",
+            "copy": {
+              "name": "tempCopy",
+              "count": "[parameters('VMCount')]"
+            },
+            "apiVersion": "2018-05-01",
+            "dependsOn": [
+                    "[concat('Microsoft.Compute/virtualMachines/', parameters('VMName'), copyIndex(1))]",
+                    "[concat('linkedTemplateDSC-apppdf',copyIndex(1))]"
+                  ],
+            "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+               "uri": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/VIRTUALMACHINES/AGENTS/DOMAINJOIN.json'), uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]"
+              },
+              "parameters": {
+                "vmList":{"value": "[concat(parameters('VMName'), copyIndex(1))]"},
+                "domainJoinUserPassword":{"value":"[parameters('domainJoinUserPassword')]"}
+              }
+               
+            }
+          },
+           {
+      "name": "[concat('linkedTemplateDSC-apppdf',copyIndex(1))]",
+      "type": "Microsoft.Resources/deployments",
+      "copy": {
+        "name": "tempCopy",
+        "count": "[parameters('VMCount')]"
+      },
+      "apiVersion": "2018-05-01",
+      "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', parameters('VMName'), copyIndex(1))]"
+            ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+         "uri": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/VIRTUALMACHINES/AGENTS/DSCsrfciphers.json'), uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]"
+        },
+        "parameters": {
+          "VMName":{"value": "[concat(parameters('VMName'), copyIndex(1))]"},
+          "ArmBlobStorageUrlFromKeyVault" : {"value" : "[parameters('ArmBlobStorageUrlFromKeyVault')]"},
+            "ArmSasTokenFromKeyVault" : {"value" : "[parameters('ArmSasTokenFromKeyVault')]"}
+        }
+      }
+    },
+        {
+      "name": "[concat('linkedTemplateNWA-ppdfls',copyIndex(1))]",
+      "type": "Microsoft.Resources/deployments",
+      "copy": {
+        "name": "tempCopy",
+        "count": "[parameters('VMCount')]"
+      },
+      "apiVersion": "2018-05-01",
+      "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', parameters('VMName'), copyIndex(1))]"
+            ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+         "uri": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/VIRTUALMACHINES/AGENTS/NETWORKWATCHER.json'), uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]"
+        },
+        "parameters": {
+          "VMName":{"value": "[concat(parameters('VMName'), copyIndex(1))]"}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(parameters('NicName'),copyIndex(1))]",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ApplicationName": "[parameters('taggingApplicationvalue')]",
+        "uai": "[parameters('tagginguaivalue')]",
+        "env": "[parameters('taggingenvvalue')]",
+        "SupportEmail": "[parameters('taggingcontactvalue')]",
+        "preserve": "[parameters('taggingpreservevalue')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[concat('ipconfig',copyIndex(1))]",
+            "properties": {
+              "subnet": {
+                "id": "[variables('SubnetRef').appsubnetref]"
+              },
+              "privateIPAllocationMethod": "Dynamic",
+              "applicationSecurityGroups": [
+                  {
+                    "id": "[resourceId(parameters('virtualNetworkRG'),'Microsoft.Network/applicationSecurityGroups',parameters('asgName'))]" 
+                  }
+                ]
+            }
+          }
+        ],
+        "dnsSettings": {
+          "dnsServers": []
+        },
+        "enableIPForwarding": false
+      },
+      "copy": {
+        "name": "niccopy",
+        "count": "[parameters('VMCount')]"
+      },
+      "dependsOn": [
+      ]
+    },
+
+    {
+      "condition": "[equals(parameters('AVailabilitySetprovision'), 'Yes')]",
+      "name": "[parameters('availabilitySetName')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2017-12-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ApplicationName": "[parameters('taggingApplicationvalue')]",
+        "uai": "[parameters('tagginguaivalue')]",
+        "env": "[parameters('taggingenvvalue')]",
+        "SupportEmail": "[parameters('taggingcontactvalue')]",
+        "preserve": "[parameters('taggingpreservevalue')]"
+      },
+      "sku": {
+        "name": "aligned"
+      },
+      "properties": {
+        "platformFaultDomainCount": "[parameters('availabilitySetPlatformFaultDomainCount')]",
+        "platformUpdateDomainCount": "[parameters('availabilitySetPlatformUpdateDomainCount')]"
+
+      }
+    },
+    {
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('updateIpapppdfls', copyIndex(1))]",
+            "copy": {
+            "name": "depCopy",
+            "count": "[parameters('VMCount')]"
+            },
+            "apiVersion": "2018-05-01",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('NicName'), copyIndex(1))]",
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('VMName'), copyIndex(1))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/NETWORKING/dynamictostaticIP.json'), uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]"
+                },
+                "parameters": {
+                    "nicName": {
+                        "value": "[concat(parameters('NicName'), copyIndex(1))]"
+                    },
+                    "SubnetRef": {
+                        "value": "[variables('SubnetRef').appsubnetref]"
+                    },
+                    "privateIp": {
+                        "value": "[reference(concat(parameters('NicName'), copyIndex(1))).ipConfigurations[0].properties.privateIPAddress]"
+                    },
+                    "ipconfigname": {
+                        "value": "[concat('ipconfig',copyIndex(1))]"
+                    }
+                }
+            }
+        },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "copy": {
+        "name": "nodeCopy",
+        "count": "[parameters('VMCount')]"
+      },
+      "name": "[concat(parameters('VMName'), copyIndex(1))]",
+      "apiVersion": "2018-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ApplicationName": "[parameters('taggingApplicationvalue')]",
+        "uai": "[parameters('tagginguaivalue')]",
+        "env": "[parameters('taggingenvvalue')]",
+        "SupportEmail": "[parameters('taggingcontactvalue')]",
+        "preserve": "[parameters('taggingpreservevalue')]"
+      },
+      "properties": {
+
+        "availabilitySet": "[if(equals(parameters('AVailabilitySetprovision'), 'Yes'), variables('availabilitySetId'), json('null'))]",
+
+
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('diagnosticStorageAccountName')), '2016-01-01').primaryEndpoints.blob]"
+
+          }
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('virtualMachineSize')]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NicName'),copyIndex(1)))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[concat(parameters('VMName'), copyIndex(1))]",
+          "adminUsername": "[parameters('virtualMachineAdminUserName')]",
+          "windowsConfiguration": {
+            "provisionVMAgent": true
+          },
+          "secrets": [],
+          "adminPassword": "[parameters('virtualMachineAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "id": "[parameters('virtualMachineImage')]"
+          },
+
+          "osDisk": {
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "[parameters('storageType')]"
+
+            },
+
+            "name": "[concat(parameters('OSDisk'), copyIndex(1))]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', concat(parameters('NicName'),copyIndex(1)))]",
+        "[concat('Microsoft.Compute/availabilitySets/', parameters('availabilitySetName'))]"
+
+
+      ]
+    },
+    {
+      "name": "[concat('OctopusTentacle-ppdfls',copyIndex(1))]",
+      "type": "Microsoft.Resources/deployments",
+      "copy": {
+        "name": "tempCopy",
+        "count": "[parameters('VMCount')]"
+      },
+      "apiVersion": "2018-05-01",
+      "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', parameters('VMName'), copyIndex(1))]"
+            ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+         "uri": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/VIRTUALMACHINES/AGENTS/OCTOPUSTENTACLE.json'), uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]"
+        },
+        "parameters": {
+          "VMName":{"value": "[concat(parameters('VMName'), copyIndex(1))]"},
+          "tentacleRoles":{"value": "[parameters('tentacleRoles')]"},
+          "tentacleApiKey":{"value": "[parameters('TentacleApiKey')]"},
+          "tentacleEnvironments":{"value": "[parameters('tentacleEnvironments')]"}
+        }
+      }
+    }
+    
+  ],
+
+  "outputs": {
+  }
+}
+  
+  
+  
+  

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "automationAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Automation account"
+      }
+    },
+    "azModuleURI": {
+      "type": "string",
+      "metadata": {
+        "description": "Az Module URI"
+      }
+    },
+    "azModules": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of modules to create for automation account"
+      }
+    },
+    "azVersions": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of modules to create for automation account"
+      }
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "name": "[concat(parameters('automationAccountName'), '/', parameters('azModules')[copyIndex()])]",
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2015-10-31",
+      "location": "[resourceGroup().location]",
+       "dependsOn": [
+      ],
+      "tags": {
+      },
+      "properties": {
+        "mode": "Incremental",
+        "contentLink": {
+          "uri": "[concat(parameters('azModuleURI'),parameters('azModules')[copyIndex()],'/',parameters('azVersions')[copyIndex()])]",
+          "version": "[parameters('azVersions')[copyIndex()]]"
+        }
+      },
+      "copy": {
+        "name": "azModulelist ",
+        "count": "[length(parameters('azModules'))]"
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

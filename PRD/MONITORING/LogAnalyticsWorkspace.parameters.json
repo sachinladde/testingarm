@@ -1,0 +1,31 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "workspaceName": {
+        "value": "gav-arv-prd-mon-la-002"
+      },
+      "sku": {
+        "value": "Standard"
+      },
+      "tagginguaivalue":{
+        "value": "uai3026608"
+      },
+      "taggingenvvalue":{
+        "value": "prd"
+      },
+      "taggingcontactvalue":{
+        "value": "Airvaultopsengineering@ge.com"
+      },
+      "taggingpreservevalue":{
+        "value": "TRUE"
+      },
+      "retentionindaysvalue": {
+         "value": 30
+      },
+      "location":{
+        "value": "eastus"
+      }
+    }
+  }
+  

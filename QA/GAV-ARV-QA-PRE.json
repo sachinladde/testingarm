@@ -1,0 +1,68 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ArmSasToken": {
+            "type": "string"
+        },
+        "ArmBlobStorageUrl": {
+            "type": "string"
+        },
+        "Env": {
+            "type": "string"
+        },
+        "UAI": {
+            "type": "string",
+            "defaultValue": "uai3026608"
+        },
+        "SupportEmail": {
+            "type": "string",
+            "defaultValue": "Airvaultopsengineering@ge.com"
+        },
+        "RemoveLockBeforeDeploy": {
+            "type": "bool",
+            "defaultValue": true
+        }
+    },
+    "variables": {
+        "keyVaultResourceGroup": "[format('GAV-ARV-{0}-KVT-01', parameters('Env'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[deployment().location]",
+            "name": "[variables('keyVaultResourceGroup')]",
+            "properties": {
+            },
+            "tags": {
+                "uai": "[parameters('UAI')]",
+                "env": "[parameters('Env')]",
+                "SupportEmail": "[parameters('SupportEmail')]",
+                "removableLock": "[parameters('RemoveLockBeforeDeploy')]"
+            }
+        },
+        {
+            "name": "KEYVAULT",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('keyVaultResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('keyVaultResourceGroup'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/KEYVAULT/KeyvaultPre.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/KEYVAULT/KeyvaultPre.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

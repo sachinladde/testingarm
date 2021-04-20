@@ -1,0 +1,133 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "VMName": {
+      "value": "arvdwebsrsls00"
+    },
+    "virtualMachineImage": {
+      "value": "/subscriptions/30f6e521-a907-43a7-8c79-70312e318675/resourceGroups/ds-services/providers/Microsoft.Compute/galleries/GoldenImage/images/WindowsServer-2019"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_A4_V2"
+    },
+    "virtualMachineAdminUserName": {
+      "value": "arvazadmin"
+    },
+    "virtualNetworkRG": {
+      "value": "GAV-ARV-DEV-NET-01"
+    },
+    "virtualNetworkName": {
+      "value": "gav-arv-dev-net-vn-001"
+    },
+    "SubnetName": {
+      "value": "gav-arv-dev-web-sn-001"
+    },
+    "OSDisk": {
+      "value": "gav-arv-dev-web-srs-osd-00"
+    },
+    "diagnosticStorageAccountName": {
+      "value": "arvdevstrdag001"
+    },
+    "NicName": {
+      "value": "gav-arv-dev-web-srs-nic-00"
+    },
+    "availabilitySetName": {
+      "value": "gav-arv-dev-web-srs-avs-001"
+    },
+    "availabilitySetPlatformFaultDomainCount": {
+      "value": "2"
+    },
+    "availabilitySetPlatformUpdateDomainCount": {
+      "value": "5"
+    },
+    "VMCount": {
+      "value": 1
+    },
+    "storageType": {
+      "value": "Standard_LRS"
+    },
+    "AVailabilitySetprovision": {
+      "value": "No"
+    },
+    "virtualMachineAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "devvmpwd"
+      }
+    },
+    "ArmBlobStorageUrlFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "armblobstorageurl"
+      }
+    },
+    "ArmSasTokenFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "armsastoken"
+      }
+    },
+    "TentacleApiKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "tentacleapikey"
+      }
+    },
+    "tentacleRoles": {
+      "value": "ssrs-security-integration,ssrs-winsvc,ssrs-wcf,ssrs-authentication-service"
+    },
+    "tentacleEnvironments": {
+      "value": "Azure-Dev"
+    },
+    "keyEncryptionKeyURL": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "diskencryptionsecret"
+      }
+    },
+    "domainJoinUserPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "addomainpwd"
+      }
+    },
+    "asgName": {
+      "value": "gav-arv-dev-web-asg-001"
+    },
+    "DecryptionKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "decryptionKey"
+      }
+    },
+    "ValidationKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "validationKey"
+      }
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault DEV"
+    },
+    "taggingenvvalue"  : {
+      "value": "dev"
+    }
+  }
+}

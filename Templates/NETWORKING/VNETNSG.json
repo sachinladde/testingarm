@@ -1,0 +1,690 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "privateNSGName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Private NSG"
+      }
+    },
+
+    "vnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "VNET Name"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+
+      "metadata": {
+        "description": "VNET Address prefix"
+      }
+    },
+    "dnsServerIPAddress": {
+      "type": "array",
+
+      "metadata": {
+        "description": "Value of th dns server IP address"
+      }
+    },
+    "gatewaySubnetPrefix": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Gateway Subnet Prefix"
+      }
+    },
+    "bastionsubnetprefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Value of the bastion subnet prefix"
+      }
+    },
+
+
+    "testSubnetPrefix": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Value of the test Subnet Prefix"
+      }
+    },
+    "webSubnetPrefix": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Web Subnet Prefix"
+      }
+    },
+    "appSubnetPrefix": {
+      "type": "string",
+
+      "metadata": {
+        "description": "App Subnet Prefix"
+      }
+    },
+    "dbSubnetPrefix": {
+      "type": "string",
+
+      "metadata": {
+        "description": "DB Subnet Prefix"
+      }
+    },
+    "adSubnetPrefix": {
+      "type": "string",
+
+      "metadata": {
+        "description": "AD Subnet Prefix"
+      }
+    },
+   
+    "imgSubnetPrefix": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Image Subnet Prefix"
+      }
+    },
+    "utilitysubnetPrefix": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Value of the utility Subnet Prefix"
+      }
+    },
+"appgatewaySubnetPrefix": {
+      "type": "string",
+    
+      "metadata": {
+        "description": "Value of the application Gateway Subnet Prefix"
+      }
+    },
+
+    "gatewaySubnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Gateway Subnet Name"
+      }
+    },
+    "bastionSubnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Name of the Bastion Subnet"
+      }
+    },
+
+
+
+    "testSubnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Name of the Management Subnet"
+      }
+    },
+    "webSubnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Web Subnet Name"
+      }
+    },
+    "appSubnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "App Subnet Name"
+      }
+    },
+    "dbSubnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "DB Subnet Name"
+      }
+    },
+    "adSubnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "AD Subnet Name"
+      }
+    },
+   
+    "ImgSubnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Management Subnet Name"
+      }
+    },
+    "UtilitySubnetName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Name of the Utility Subnet"
+      }
+    },
+ 
+"appgatewaySubnetName": {
+      "type": "string",
+      
+      "metadata": {
+        "description": "Name of the application Gateway Subnet"
+      }
+    },
+
+    "taggingApplicationvalue": {
+      "type": "string",
+      "defaultValue": "AirVault DEV",
+      "metadata": {
+        "description": "Tagging value of the Application Name"
+      }
+    },
+    "tagginguaivalue": {
+      "type": "string",
+      "defaultValue": "uai3026608",
+      "metadata": {
+        "description": "Tagging value of the Unique Application Identifier"
+      }
+    },
+    "taggingenvvalue": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tagging value of the environment"
+      }
+    },
+    "taggingcontactvalue": {
+      "type": "string",
+      "defaultValue": "Airvaultopsengineering@ge.com",
+      "metadata": {
+        "description": "Tagging value of the point of contact"
+      }
+    },
+    "taggingpreservevalue": {
+      "type": "string",
+      "defaultValue": "TRUE",
+      "metadata": {
+        "description": "Tagging value of the preserver"
+      }
+    }
+
+  },
+   "variables": {
+    "empty-array": [],
+    "network-security-groups":[
+        {
+            "name": "[parameters('privateNSGName')]",
+            "rules":[
+                {
+                    "name": "PING_ICMP_BETWEEN_DEV_SERVERS_INBOUND",
+                    "properties": {
+                      "access": "Allow",
+                      "destinationAddressPrefixes": [
+                        "172.19.32.0/20" 
+                      ],
+                      "destinationAddressPrefix": [],
+                      "destinationPortRange": "*",
+                      "destinationPortRanges": [
+                       
+                      ],
+                      "direction": "Inbound",
+                      "priority": 890,
+                      "protocol": "ICMP",
+                      "sourceAddressPrefix":"",
+                      "sourceAddressPrefixes":[
+                          
+                           "172.16.0.0/16"
+                      ],
+                      "sourcePortRange": "*",
+                      "sourcePortRanges": []
+                      
+                      
+                    }
+                  },
+                  {
+                    "name": "PING_ICMP_BETWEEN_DEV_TO_DEV_SUBNET_INBOUND",
+                    "properties": {
+                      "access": "Allow",
+                      "destinationAddressPrefixes": [
+                        "172.19.47.0/24" 
+                      ],
+                      "destinationAddressPrefix": [],
+                      "destinationPortRange": "*",
+                      "destinationPortRanges": [
+                       
+                      ],
+                      "direction": "Inbound",
+                      "priority": 895,
+                      "protocol": "ICMP",
+                      "sourceAddressPrefix":"",
+                      "sourceAddressPrefixes":[
+                          
+                        "172.19.47.0/24"
+                      ],
+                      "sourcePortRange": "*",
+                      "sourcePortRanges": []
+                      
+                      
+                    }
+                  },
+                  {
+                    "name": "ALLOW_FROM_ONPREM_TO_AZURE",
+                    "properties": {
+                      "access": "Allow",
+                      "destinationAddressPrefixes": [
+                        "172.19.32.0/20" 
+                      ],
+                      "destinationAddressPrefix": [],
+                      "destinationPortRange": "*",
+                      "destinationPortRanges": [
+                       
+                      ],
+                      "direction": "Inbound",
+                      "priority": 900,
+                      "protocol": "*",
+                      "sourceAddressPrefix":"",
+                      "sourceAddressPrefixes":[
+                           
+                           "172.16.0.0/16"
+                      ],
+                      "sourcePortRange": "*",
+                      "sourcePortRanges": []
+                      
+                      
+                    }
+                  },
+                  {
+                    "name": "ALLOW_FROM_VNET_TO_VNET_INBOUND",
+                    "properties": {
+                      "access": "Allow",
+                      "destinationAddressPrefixes": [
+                        "172.19.32.0/20" 
+                      ],
+                      "destinationAddressPrefix": [],
+                      "destinationPortRange": "*",
+                      "destinationPortRanges": [
+                       
+                      ],
+                      "direction": "Inbound",
+                      "priority": 910,
+                      "protocol": "*",
+                      "sourceAddressPrefix":"",
+                      "sourceAddressPrefixes":[
+                           
+                        "172.19.32.0/20"
+                      ],
+                      "sourcePortRange": "*",
+                      "sourcePortRanges": []
+                      
+                      
+                    }
+                  },
+                  {
+                    "name": "PING_ICMP_BETWEEN_DEV_SERVERS_OUTBOUND",
+                    "properties": {
+                      "access": "Allow",
+                      "destinationAddressPrefixes": [
+                          "172.16.0.0/16","172.19.32.0/20"
+                      ],
+                      "destinationAddressPrefix": [],
+                      "destinationPortRange": "*",
+                      "destinationPortRanges": [
+                       
+                      ],
+                      "direction": "Outbound",
+                      "priority": 850,
+                      "protocol": "ICMP",
+                      "sourceAddressPrefix":[],
+                      "sourceAddressPrefixes":[
+                           "172.19.32.0/20"
+                           
+                      ],
+                      "sourcePortRange": "*",
+                      "sourcePortRanges": []
+                      
+                      
+                    }
+                  },
+                  {
+                    "name": "ALLOW_FROM_AZURE_TO_ONPREM",
+                    "properties": {
+                      "access": "Allow",
+                      "destinationAddressPrefixes": [
+                         "172.16.0.0/16"
+                      ],
+                      "destinationAddressPrefix": [],
+                      "destinationPortRange": "*",
+                      "destinationPortRanges": [
+                       
+                      ],
+                      "direction": "Outbound",
+                      "priority": 860,
+                      "protocol": "*",
+                      "sourceAddressPrefix":"",
+                      "sourceAddressPrefixes":[
+                        "172.19.32.0/20"  
+                           
+                      ],
+                      "sourcePortRange": "*",
+                      "sourcePortRanges": []
+                      
+                      
+                    }
+                  },
+                  {
+                    "name": "ALLOW_FROM_VNET_TO_VNET_OUTBOUND",
+                    "properties": {
+                      "access": "Allow",
+                      "destinationAddressPrefixes": [
+                        "172.19.32.0/20" 
+                      ],
+                      "destinationAddressPrefix": [],
+                      "destinationPortRange": "*",
+                      "destinationPortRanges": [
+                       
+                      ],
+                      "direction": "Outbound",
+                      "priority": 870,
+                      "protocol": "*",
+                      "sourceAddressPrefix":"",
+                      "sourceAddressPrefixes":[
+                           
+                        "172.19.32.0/20"
+                      ],
+                      "sourcePortRange": "*",
+                      "sourcePortRanges": []
+                      
+                      
+                    }
+                  }
+            ]
+        }
+        
+    ]
+    
+    
+    
+    
+    
+    },
+"resources": [
+    {
+        "apiVersion": "2018-02-01",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "name": "[variables('network-security-groups')[copyIndex()].name]",
+        "location": "[resourceGroup().location]",
+        "copy": {
+          "count": "[length(variables('network-security-groups'))]",
+          "name": "nsgLoop"
+        },
+        "dependsOn": [
+          
+        ],
+        "properties": {
+          "copy": [
+            {
+              "name": "securityRules",
+              "count": "[length(variables('network-security-groups')[copyIndex('nsgLoop')].rules)]",
+              "input": {
+                "name": "[variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].name]",
+                "properties": {
+                  "access": "[variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.access]",
+
+                  "destinationAddressPrefixes": "[if(equals(length(variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.destinationAddressPrefixes), 0), json('null'), variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.destinationAddressPrefixes)]",
+
+                  "destinationPortRanges": "[if(equals(length(variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.destinationPortRanges), 0), json('null'), variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.destinationPortRanges)]",
+                  "destinationPortRange": "[if(equals(variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.destinationPortRange, ''), json('null'), variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.destinationPortRange)]",
+                  "direction": "[variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.direction]",
+                  "priority": "[int(variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.priority)]",
+                  "protocol": "[variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.protocol]",
+                  "sourceAddressPrefixes": "[if(equals(variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.sourceAddressPrefixes, ''), json('null'), variables('network-security-groups')[copyIndex()].rules[copyIndex('securityRules')].properties.sourceAddressPrefixes)]",
+
+                  "sourcePortRanges": "[if(equals(length(variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.sourcePortRanges), 0), json('null'), variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.sourcePortRanges)]",
+                  "sourcePortRange": "[variables('network-security-groups')[copyIndex('nsgLoop')].rules[copyIndex('securityRules')].properties.sourcePortRange]"
+                }
+              }
+            }
+          ]
+        },
+        "resources": []
+      },
+  {
+    "apiVersion": "2019-05-01",
+    "type": "Microsoft.Resources/deployments",
+    "name": "updateVNetWithNSG",
+    "dependsOn": [
+      "[concat('Microsoft.Network/networkSecurityGroups/', parameters('privateNSGName'))]"
+    ],
+    "properties": {
+      "mode": "Incremental",
+      "parameters": {},
+      "template": {
+        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "variables": {},
+        "resources": [
+          {
+            "apiVersion": "2018-02-01",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('vnetName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+
+              "ApplicationName": "[parameters('taggingApplicationvalue')]",
+              "uai": "[parameters('tagginguaivalue')]",
+              "env": "[parameters('taggingenvvalue')]",
+              "SupportEmail": "[parameters('taggingcontactvalue')]",
+              "preserve": "[parameters('taggingpreservevalue')]"
+            },
+            "properties": {
+              "addressSpace": {
+                "addressPrefixes": [
+                  "[parameters('vnetAddressPrefix')]"
+                ]
+              },
+              "dhcpOptions": {
+                "dnsServers": "[parameters('dnsServerIPAddress')]"
+              },
+              "subnets": [
+                {
+                  "name": "[parameters('gatewaySubnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
+                     "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                 "locations": [
+                      "[resourceGroup().location]"
+                    ]
+                 }
+               ]
+                  }
+                },
+                {
+                  "name": "[parameters('webSubnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('webSubnetPrefix')]",
+                     "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                  "locations": [
+                      "[resourceGroup().location]"
+                    ]
+                 }
+               ],
+                    "networkSecurityGroup": {
+                      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('privateNSGName'))]"
+                    }
+                  }
+                },
+                {
+                  "name": "[parameters('appSubnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('appSubnetPrefix')]",
+
+                    "networkSecurityGroup": {
+                      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('privateNSGName'))]"
+                    },
+                     "serviceEndpoints":[
+                        {
+                    "service": "Microsoft.Storage",
+                    "locations": [
+                      "[resourceGroup().location]"
+                    ]
+                   },
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                  "locations": [
+                      "[resourceGroup().location]"
+                    ]
+                 }
+               ]
+                  }
+                },
+                {
+                  "name": "[parameters('dbSubnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('dbSubnetPrefix')]",
+                    "networkSecurityGroup": {
+                      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('privateNSGName'))]"
+                    },
+                     "serviceEndpoints":[
+                        {
+                    "service": "Microsoft.Storage",
+                     "locations": [
+                      "[resourceGroup().location]"
+                    ]
+                   },
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                 "locations": [
+                      "[resourceGroup().location]"
+                    ]
+                 }
+               ]
+                  }
+                },
+                {
+                  "name": "[parameters('adSubnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('adSubnetPrefix')]",
+                    "networkSecurityGroup": {
+                      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('privateNSGName'))]"
+                    },
+                     "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                 "locations": [
+                      "[resourceGroup().location]"
+                    ]
+                 }
+               ]
+                  }
+                },
+                
+                {
+                  "name": "[parameters('ImgSubnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('imgSubnetPrefix')]",
+                    "networkSecurityGroup": {
+                      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('privateNSGName'))]"
+                    },
+                     "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+                  }
+                },
+                {
+                  "name": "[parameters('UtilitySubnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('utilitysubnetPrefix')]",
+                    "networkSecurityGroup": {
+                      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('privateNSGName'))]"
+                    },
+                     "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                 "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+                  }
+                },
+                {
+                  "name": "[parameters('bastionSubnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('bastionsubnetprefix')]"
+
+                  }
+                },
+                 {
+            "name": "[parameters('appgatewaySubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('appgatewaySubnetPrefix')]",
+               "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                  "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+            }
+          },
+                {
+                  "name": "[parameters('testSubnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('testSubnetPrefix')]",
+                    "networkSecurityGroup": {
+                      "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('privateNSGName'))]"
+                    },
+                     "serviceEndpoints":[
+                 {
+                   
+                  "service": "Microsoft.KeyVault",
+                 "locations": [
+                      "[resourceGroup().location]"
+                     
+                    ]
+                 }
+               ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "outputs": {}
+      }
+    }
+  } 
+  ],
+  "outputs": {
+
+  }
+}

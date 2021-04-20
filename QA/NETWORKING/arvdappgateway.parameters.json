@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualNetworkRG": {
+      "value": "GAV-ARV-QA-NET-01"
+    },
+    "virtualNetworkName": {
+      "value": "gav-arv-qa-net-vn-001"
+    },
+    "SkuTier": {
+      "value": "WAF"
+    },
+    "subnetName": {
+      "value": "gav-arv-qa-agw-sn-001"
+    },
+    "applicationGatewayName": {
+      "value": "gav-arv-qa-net-agw-001"
+    },
+    "applicationGatewaySize": {
+      "value": "WAF_Medium"
+    },
+    "sslCertificateData": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "appGatewayCertData"
+      }
+    },
+    "sslCertificatePassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "appGatewayCertPassword"
+      }
+    },
+    "applicationGatewayInstanceCount": {
+      "value": 1
+    },
+    "cookieBasedAffinity": {
+      "value": "Disabled"
+    },
+    "Env": {
+      "value": "qa"
+    },
+    "zfpNicIds": {
+      "value": [
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-zfp-nic-001",
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-zfp-nic-002",
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-zfp-nic-003"
+      ]
+    },
+    "scanNicIds": {
+      "value": [
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-enc-nic-001",
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-enc-nic-002",
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-enc-nic-003"
+      ]
+    },
+    "workflowNicIds": {
+      "value": [
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-skt-nic-001",
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-skt-nic-002",
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-skt-nic-003"
+      ]
+    },
+    "reportNicIds": {
+      "value": [
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-qa-web-srs-nic-001"
+      ]
+    },
+    "taggingApplicationvalue": {
+        "value": "AirVault QA"
+      },
+      "taggingenvvalue"  : {
+        "value": "qa"
+      } 
+  }
+}

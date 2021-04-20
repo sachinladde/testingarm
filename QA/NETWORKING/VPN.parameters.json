@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vpnType": {
+      "value": "RouteBased"
+    },
+    "arvlocalGatewayName": {
+      "value": "gav-arv-qa-net-lgw-001"
+    },
+    "arvlocalGatewayIpAddress": {
+      "value": "216.138.118.5"
+    },
+    "gatewayPublicIPName": {
+      "value": "gav-arv-qa-net-pip-001"
+    },
+    "gatewayName": {
+      "value": "gav-arv-qa-net-vgw-001"
+    },
+    "gatewaySku": {
+      "value": "VpnGw2"
+    },
+    "connectionName": {
+      "value": "gav-arv-qa-net-vpn-001"
+    },
+    "arvlocalAddressPrefix": {
+      "value": [
+        "172.16.0.0/16",
+        "172.17.0.0/16"
+      ]
+    },
+    "VnetName": {
+      "value": "gav-arv-qa-net-vn-001"
+    },
+    "keyEncryptionKeyURL": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "vpnsharedkey"
+      }
+    },
+    "ArmBlobStorageUrlFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "armblobstorageurl"
+      }
+    },
+    "ArmSasTokenFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "armsastoken"
+      }
+    },
+    "Env": {
+      "value": "QA"
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault QA"
+    },
+    "taggingenvvalue"  : {
+      "value": "qa"
+    } 
+  }
+}

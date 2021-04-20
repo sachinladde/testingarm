@@ -1,0 +1,879 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ArmSasToken": {
+            "type": "string"
+        },
+        "ArmBlobStorageUrl": {
+            "type": "string"
+        },
+        "Env": {
+            "type": "string"
+        },
+        "UAI": {
+            "type": "string",
+            "defaultValue": "uai3026608"
+        },
+        "SupportEmail": {
+            "type": "string",
+            "defaultValue": "Airvaultopsengineering@ge.com"
+        },
+        "ProvisionLoadBalancer": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "RemoveLockBeforeDeploy": {
+            "type": "bool",
+            "defaultValue": true
+        },
+        "ProvisionGateway": {
+            "type": "bool",
+            "defaultValue": true
+        },
+        "ProvisionUtils": {
+            "type": "bool",
+            "defaultValue": true
+        },
+        "ProvisionProdVMs":{
+            "type": "bool",
+            "defaultValue": true
+        } 
+    },
+    "variables": {
+        "keyVaultResourceGroup": "[format('GAV-ARV-{0}-KVT-01', parameters('Env'))]",
+        "automationResourceGroup": "[format('GAV-ARV-{0}-AUT-01', parameters('Env'))]",
+        "generalResourceGroup": "[format('GAV-ARV-{0}-GEN-01', parameters('Env'))]",
+        "monitorResourceGroup": "[format('GAV-ARV-{0}-MON-01', parameters('Env'))]",
+        "networkResourceGroup": "[format('GAV-ARV-{0}-NET-01', parameters('Env'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[deployment().location]",
+            "name": "[variables('keyVaultResourceGroup')]",
+            "properties": {
+            },
+            "tags": {
+                "uai": "[parameters('UAI')]",
+                "env": "[parameters('Env')]",
+                "SupportEmail": "[parameters('SupportEmail')]",
+                "removableLock": "[parameters('RemoveLockBeforeDeploy')]"
+            }
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "keyVaultResourceGroupLock",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('keyVaultResourceGroup')]",
+            "dependsOn": [
+                "[variables('keyVaultResourceGroup')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/GENERAL/ResourceLock.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/GENERAL/KeyVaultResourceGroupLock.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "name": "KEYVAULT",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('keyVaultResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('keyVaultResourceGroup'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/KEYVAULT/Keyvault.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/KEYVAULT/Keyvault.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "name": "arvdapprstls00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/APPSERVERS/arvdapprstls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/AppServers/arvdapprstls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "condition": "[parameters('ProvisionProdVMs')]",
+            "name": "arvpsqldevls00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/DBSERVERS/arvdsqldevls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/DBSERVERS/arvdsqldevls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "condition": "[parameters('ProvisionProdVMs')]",
+            "name": "arvpwebimzls00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/WEBSERVERS/arvdwebimzls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/WEBSERVERS/arvdwebimzls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "arvdappstcls00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/APPSERVERS/arvdappstcls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/AppServers/arvdappstcls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "arvdappcssls00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/APPSERVERS/arvdappcssls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/AppServers/arvdappcssls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+
+        },
+        {
+            "name": "arvdappvstls00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/APPSERVERS/arvdappvstls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/AppServers/arvdappvstls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[deployment().location]",
+            "name": "[variables('automationResourceGroup')]",
+            "properties": {
+            },
+            "tags": {
+                "uai": "[parameters('UAI')]",
+                "env": "[parameters('Env')]",
+                "SupportEmail": "[parameters('SupportEmail')]",
+                "removableLock": "[parameters('RemoveLockBeforeDeploy')]"
+            }
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "automationResoucreGroupLock",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('automationResourceGroup')]",
+            "dependsOn": [
+                "[variables('automationResourceGroup')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/GENERAL/ResourceLock.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/GENERAL/AutomationResourceGroupLock.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[deployment().location]",
+            "name": "[variables('generalResourceGroup')]",
+            "properties": {
+            },
+            "tags": {
+                "uai": "[parameters('UAI')]",
+                "env": "[parameters('Env')]",
+                "SupportEmail": "[parameters('SupportEmail')]",
+                "removableLock": "[parameters('RemoveLockBeforeDeploy')]"
+            }
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "generalResourceGroupLock",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[variables('generalResourceGroup')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/GENERAL/ResourceLock.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/GENERAL/GeneralResourceGroupLock.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "diagnosticStorageAccount",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[variables('generalResourceGroup')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/GENERAL/StorageAccount.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/GENERAL/StorageAccount.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "condition": "[parameters('ProvisionUtils')]",
+            "name": "arvdutlblls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/UTILITYSERVERS/arvdutlblls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/UTILITYSERVERS/arvdutlblls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+
+        {
+            "condition": "[parameters('ProvisionUtils')]",
+            "name": "arvdutlocls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/UTILITYSERVERS/arvdutlocls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/UTILITYSERVERS/arvdutlocls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "condition": "[parameters('ProvisionUtils')]",
+            "name": "arvdutltfls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/UTILITYSERVERS/arvdutltfls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/UTILITYSERVERS/arvdutltfls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "condition": "[parameters('ProvisionUtils')]",
+            "name": "arvdutldvls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/UTILITYSERVERS/arvdutldvls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/UTILITYSERVERS/arvdutldvls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "name": "arvdsqldmels001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/DBSERVERS/arvdsqldmels001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/DBSERVERS/arvdsqldmels001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+
+            }
+        },
+        {
+            "name": "arvdsqlserls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/DBSERVERS/arvdsqlserls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/DBSERVERS/arvdsqlserls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+
+            }
+        },
+        {
+            "name": "arvdimgls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/IMAGESERVERS/arvdimgls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/IMAGESERVERS/arvdimgls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+
+            }
+        },
+        {
+            "name": "arvdappprcls00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/APPSERVERS/arvdappprcls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/AppServers/arvdappprcls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "name": "arvdwebsktls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/WEBSERVERS/arvdwebsktls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/WEBSERVERS/arvdwebsktls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+
+            }
+        },
+        {
+            "name": "arvdwebsrsls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/WEBSERVERS/arvdwebsrsls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/WEBSERVERS/arvdwebsrsls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+
+            }
+        },
+        {
+            "name": "arvdwebencls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/WEBSERVERS/arvdwebencls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/WEBSERVERS/arvdwebencls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+
+            }
+        },
+        {
+            "name": "arvdwebzfpls",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/WEBSERVERS/arvdwebzfpls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/WEBSERVERS/arvdwebzfpls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+
+            }
+        },
+         {
+            "name": "arvdwebftpls",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/WEBSERVERS/arvdwebftpls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/WEBSERVERS/arvdwebftpls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "name": "arvpapppdfls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/APPSERVERS/arvdapppdfls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/AppServers/arvdapppdfls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "arvpappocpls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/APPSERVERS/arvdappocpls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/AppServers/arvdappocpls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "arvdappsktls00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/APPSERVERS/arvdappsktls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/AppServers/arvdappsktls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[deployment().location]",
+            "name": "[variables('monitorResourceGroup')]",
+            "properties": {
+            },
+            "tags": {
+                "uai": "[parameters('UAI')]",
+                "env": "[parameters('Env')]",
+                "SupportEmail": "[parameters('SupportEmail')]",
+                "removableLock": "[parameters('RemoveLockBeforeDeploy')]"
+            }
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "monitorResourceGroupLock",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('monitorResourceGroup')]",
+            "dependsOn": [
+                "[variables('monitorResourceGroup')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/GENERAL/ResourceLock.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/GENERAL/MonitorResourceGroupLock.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "name": "arvdapprmqls00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/APPSERVERS/arvdapprmqls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/AppServers/arvdapprmqls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+
+        },
+        {
+            "name": "arvdevdcls001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]",
+                "diagnosticStorageAccount"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/VIRTUALMACHINES/ADSERVERS/arvdevdcls001.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/VIRTUALMACHINES/ADSERVERS/arvdevdcls001.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "gavarvdevmonla00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('monitorResourceGroup')]",
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/MONITORING/LogAnalyticsWorkspace.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/MONITORING/LogAnalyticsWorkspace.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "arv-dev-sec-aut-001",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('automationResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('automationResourceGroup'))]"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/SECURITY/AUTOMATION/Automation.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/SECURITY/AUTOMATION/Automation.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "arv-dev-sec-aut-mod",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('automationResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('automationResourceGroup'))]",
+                "arv-dev-sec-aut-001"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/SECURITY/AUTOMATION/Modules.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/SECURITY/AUTOMATION/Modules.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "KeyVaultRunbookScheduleJob",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('automationResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('automationResourceGroup'))]",
+                "arv-dev-sec-aut-001"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/SECURITY/RUNBOOKS/KeyVaultBackup.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/SECURITY/RUNBOOKS/KeyVaultBackup.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "condition": "[parameters('ProvisionLoadBalancer')]",
+            "name": "gavarvdevintilb00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('generalResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('generalResourceGroup'))]"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/GENERAL/arvdevintilb.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/GENERAL/arvdevintilb.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "condition": "[parameters('ProvisionGateway')]",
+            "name": "arvdappgateway00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('networkResourceGroup')]",
+            "dependsOn":[
+                "arvdwebzfpls"
+            ],
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/NETWORKING/arvdappgateway.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/NETWORKING/arvdappgateway.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

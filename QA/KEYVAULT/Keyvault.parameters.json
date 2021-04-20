@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
+      "value": "arv-qa-sec-kvt-001"
+    },
+    "keyVaultBackupName": {
+      "value": "arv-qa-bkp-kvt-001"
+    },
+    "objectIdForBackup": {
+      "value": "eba26081-cb51-421b-aa3c-32eddc8a1adf"
+    },
+    "objectIdForDeployment": {
+      "value": "16fce57e-8064-46ea-9d83-86b3c7f8c269"
+    },
+    "enableVaultForDeployment": {
+      "value": true
+    },
+    "enableVaultForDiskEncryption": {
+      "value": true
+    },
+    "enabledForTemplateDeployment": {
+      "value": true
+    },
+    "virtualNetworkRG":{
+      "value": "GAV-ARV-QA-NET-01"
+  },
+  "vnetName":{
+      "value": "gav-arv-qa-net-vn-001"
+  },
+  "webSubnetName": {
+      "value": "gav-arv-qa-web-sn-001"
+    },
+    "appSubnetName": {
+      "value": "gav-arv-qa-app-sn-001"
+    },
+    "dbSubnetName": {
+      "value": "gav-arv-qa-db-sn-001"
+    },
+    "adSubnetName": {
+      "value": "gav-arv-qa-ad-sn-001"
+    },
+   
+    "ImgSubnetName": {
+      "value": "gav-arv-qa-img-sn-001"
+    },
+    
+    "gatewaySubnetName": {
+      "value": "GatewaySubnet"
+    },
+    "appgatewaySubnetName": {
+      "value": "gav-arv-qa-agw-sn-001"
+    },
+    "UtilitySubnetName": {
+      "value": "gav-arv-qa-utl-sn-001"
+    },
+    
+    "testSubnetName": {
+      "value": "gav-arv-qa-tst-sn-001"
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault QA"
+    },
+    "taggingenvvalue"  : {
+      "value": "qa"
+    } 
+  }
+}

@@ -1,0 +1,198 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ArmSasToken": {
+            "type": "string"
+        },
+        "ArmBlobStorageUrl": {
+            "type": "string"
+        },
+        "Env": {
+            "type": "string"
+        },
+        "UAI": {
+            "type": "string",
+            "defaultValue": "uai3026608"
+        },
+        "SupportEmail": {
+            "type": "string",
+            "defaultValue": "Airvaultopsengineering@ge.com"
+        },
+        "RemoveLockBeforeDeploy": {
+            "type": "bool",
+            "defaultValue": true
+        }
+    },
+    "variables": {
+        "networkResourceGroup": "[format('GAV-ARV-{0}-NET-01', parameters('Env'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[deployment().location]",
+            "name": "[variables('networkResourceGroup')]",
+            "properties": {
+            },
+            "tags": {
+                "uai": "[parameters('UAI')]",
+                "env": "[parameters('Env')]",
+                "SupportEmail": "[parameters('SupportEmail')]",
+                "removableLock": "[parameters('RemoveLockBeforeDeploy')]"
+            }
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "networkResourceGroupLock",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('networkResourceGroup')]",
+            "dependsOn": [
+                "[variables('networkResourceGroup')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/GENERAL/ResourceLock.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/GENERAL/NetworkResourceGroupLock.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "name": "VirtualNetwork",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('networkResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('networkResourceGroup'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/NETWORKING/VNET.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/NETWORKING/VNET.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+
+            }
+        },
+        {
+            "name": "VPNCONNECTION",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('networkResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('networkResourceGroup'))]",
+                "VirtualNetwork"
+            ],
+            "properties": {
+                "mode": "Incremental",
+
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/NETWORKING/VPN.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/NETWORKING/VPN.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                }
+
+            }
+        },
+        {
+            "name": "gavarvdevadasg00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('networkResourceGroup')]",
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/NETWORKING/appsecuritygroup.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/NETWORKING/arvdevadasg.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "gavarvdevappasg00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('networkResourceGroup')]",
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/NETWORKING/appsecuritygroup.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/NETWORKING/arvdevappasg.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "gavarvdevwebasg00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('networkResourceGroup')]",
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/NETWORKING/appsecuritygroup.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/NETWORKING/arvdevwebasg.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "gavarvdevsqlasg00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('networkResourceGroup')]",
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/NETWORKING/appsecuritygroup.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/NETWORKING/arvdevsqlasg.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        },
+        {
+            "name": "gavarvdevilbasg00",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-01",
+            "resourceGroup": "[variables('networkResourceGroup')]",
+            "properties": {
+                "templateLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), 'Templates/NETWORKING/appsecuritygroup.json'), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "[concat(uri(parameters('ArmBlobStorageUrl'), concat(parameters('Env'),'/NETWORKING/arvdevilbasg.parameters.json')), parameters('ArmSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "mode": "Incremental"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

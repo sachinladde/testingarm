@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "automationAccountName": {
+      "value": "arv-qa-sec-aut-001"
+    },
+    "Subscription": {
+      "value": "b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f"
+    },
+    "SourceKeyVault": {
+      "value": "arv-qa-sec-kvt-001"
+    },
+    "DestinationKeyVault": {
+      "value": "arv-qa-bkp-kvt-001"
+    },
+    "ArmBlobStorageUrlFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "armblobstorageurl"
+  
+      }
+    },
+    "ArmSasTokenFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "armsastoken"
+  
+      }
+    }
+  }
+}

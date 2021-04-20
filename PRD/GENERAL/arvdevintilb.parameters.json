@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "loadBalancerName": {
+            "value": "gav-arv-prd-int-ilb-001"
+        },
+        "virtualNetworkExternalId": {
+            "value": "/subscriptions/63f2f6e3-89a1-4677-a780-2f788788f101/resourceGroups/GAV-ARV-PRD-NET-01/providers/Microsoft.Network/virtualNetworks/gav-arv-prd-net-vn-001"
+        },
+        "tagginguaivalue":{
+            "value": "uai3026608"
+          },
+          "taggingenvvalue":{
+            "value": "prd"
+          },
+          "taggingcontactvalue":{
+            "value": "Airvaultopsengineering@ge.com"
+          },
+          "taggingpreservevalue":{
+            "value": "TRUE"
+          },
+          "taggingapplicationname":{
+            "value": "AirVault PRD"
+          },
+          "privateipaddress":{
+              "value": ""
+          },
+          "Env":{
+            "value": "prd"
+          },
+          "location":{
+            "value": "eastus"
+          }
+    }
+}

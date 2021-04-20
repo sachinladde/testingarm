@@ -1,0 +1,113 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+    "advmName": {
+      "value": "arvpdcls00"
+    },
+    "virtualMachineImage": {
+      "value": "/subscriptions/30f6e521-a907-43a7-8c79-70312e318675/resourceGroups/ds-services/providers/Microsoft.Compute/galleries/GoldenImage/images/WindowsServer-2012-R2"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_A3"
+    },
+    "virtualMachineAdminUserName": {
+      "value": "arvazadmin"
+    },
+    "VMCount": {
+      "value": 2
+    },
+    "virtualNetworkRG": {
+      "value": "GAV-ARV-PRD-NET-01"
+    },
+    "virtualNetworkName": {
+      "value": "gav-arv-prd-net-vn-001"
+    },
+    "adSubnetName": {
+      "value": "gav-arv-prd-ad-sn-001"
+    },
+    "OSDisk": {
+      "value": "gav-arv-prd-dc-osd-00"
+    },
+    "sizeOfDataDiskInGB": {
+      "value": 256
+    },
+    "diagnosticStorageAccountName": {
+      "value": "arvprdstrdag001"
+    },
+    "adNicName": {
+      "value": "gav-arv-prd-dc-nic-00"
+    },
+    "virtualMachineAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/63f2f6e3-89a1-4677-a780-2f788788f101/resourceGroups/GAV-ARV-PRD-KVT-01/providers/Microsoft.KeyVault/vaults/arv-prd-sec-kvt-001"
+        },
+        "secretName": "prdvmpwd"
+  
+      }
+    },
+    "ArmBlobStorageUrlFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/63f2f6e3-89a1-4677-a780-2f788788f101/resourceGroups/GAV-ARV-PRD-KVT-01/providers/Microsoft.KeyVault/vaults/arv-prd-sec-kvt-001"
+        },
+        "secretName": "armblobstorageurl"
+  
+      }
+    },
+    "ArmSasTokenFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/63f2f6e3-89a1-4677-a780-2f788788f101/resourceGroups/GAV-ARV-PRD-KVT-01/providers/Microsoft.KeyVault/vaults/arv-prd-sec-kvt-001"
+        },
+        "secretName": "armsastoken"
+  
+      }
+    },
+    "asgName": {
+      "value": "gav-arv-prd-ad-asg-001"
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault PRD"
+    },
+    "taggingenvvalue"  : {
+      "value": "prd"
+    },
+    "PrimaryDNSserverIP": {
+      "value": "172.16.8.44"
+    },
+     "secondaryDNSIP": {
+     "value": "172.16.8.48"
+    },
+     "subnetmask": {
+     "value": "24"
+    },
+     "defaultgatewayIP": {
+     "value": "172.18.17.1"
+    },
+     "domainName": {
+     "value": "criticaltech.com"
+    },
+    "secdomainpasswd": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/63f2f6e3-89a1-4677-a780-2f788788f101/resourceGroups/GAV-ARV-PRD-KVT-01/providers/Microsoft.KeyVault/vaults/arv-prd-sec-kvt-001"
+        },
+        "secretName": "addomainpwd"
+      }
+    },
+    "DCReplicationSource": {
+    "value": "DALADDC1.criticaltech.com"
+    },
+    "domainadminusername": {
+      "value": "arvazadmin"
+    },
+    "siteName": {
+      "value": "AzureProdEast"
+    } 
+    
+  }
+}
+  

@@ -1,0 +1,29 @@
+{
+"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "VMName": {
+        "type": "string",
+        "metadata": {
+          "description": "Name of the Virtual machine"
+        }
+      }
+    },
+    "variables": {},
+    "resources": [
+    {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(parameters('VMName'), '/Microsoft.Azure.NetworkWatcher')]",
+        "apiVersion": "2015-06-15",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [],
+        "properties": {
+            "publisher": "Microsoft.Azure.NetworkWatcher",
+            "type": "NetworkWatcherAgentWindows",
+            "typeHandlerVersion": "1.4",
+            "autoUpgradeMinorVersion": true
+        }
+    }
+    ],
+    "outputs": {}
+}

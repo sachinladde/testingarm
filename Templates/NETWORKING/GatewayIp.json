@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "gatewayPublicIPName": {
+      "type": "string",
+
+      "metadata": {
+        "description": "Arbitrary name for public IP resource used for the new azure gateway"
+      }
+    },
+    "taggingApplicationvalue": {
+      "type": "string",
+      "defaultValue": "AirVault DEV",
+      "metadata": {
+        "description": "Tagging value of the Application Name"
+      }
+    },
+    "tagginguaivalue": {
+      "type": "string",
+      "defaultValue": "uai3026608",
+      "metadata": {
+        "description": "Tagging value of the Unique Application Identifier"
+      }
+    },
+    "taggingenvvalue": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tagging value of the environment"
+      }
+    },
+    "taggingcontactvalue": {
+      "type": "string",
+      "defaultValue": "Airvaultopsengineering@ge.com",
+      "metadata": {
+        "description": "Tagging value of the point of contact"
+      }
+    },
+    "taggingpreservevalue": {
+      "type": "string",
+      "defaultValue": "TRUE",
+      "metadata": {
+        "description": "Tagging value of the preserver"
+      }
+    }
+  },
+  "variables": {
+    "api-version": "2018-02-01"
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('api-version')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('gatewayPublicIPName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "ApplicationName": "[parameters('taggingApplicationvalue')]",
+        "uai": "[parameters('tagginguaivalue')]",
+        "env": "[parameters('taggingenvvalue')]",
+        "SupportEmail": "[parameters('taggingcontactvalue')]",
+        "preserve": "[parameters('taggingpreservevalue')]"
+      },
+
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the virtual machine"
+      }
+    },
+    "keyvaultresourcegroup": {
+      "type": "string",
+      "metadata": {
+        "description": "key encryption key url of the key vault"
+      }
+    },
+    "keyvaultname": {
+      "type": "string",
+      "metadata": {
+        "description": "key encryption key url of the key vault"
+      }
+    },
+    "keyEncryptionKeyURL": {
+      "type": "string",
+      "metadata": {
+        "description": "key encryption key url of the key vault"
+      }
+    },
+    "forceUpdateTag": {
+      "type": "string",
+      "defaultValue": "1.0",
+      "metadata": {
+        "description": "Pass in an unique value like a GUID everytime the operation needs to be force run"
+      }
+    }
+  },
+  "variables": {
+    "volumeType": "All",
+    "extensionName": "AzureDiskEncryption",
+    "extensionVersion": "2.2",
+    "encryptionOperation": "EnableEncryption",
+    "keyEncryptionAlgorithm": "RSA-OAEP",
+    "keyVaultResourceID": "[resourceId(parameters('keyvaultresourcegroup'), 'Microsoft.KeyVault/vaults/', parameters('keyvaultname'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'),'/', variables('extensionName'))]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-30",
+      "properties": {
+        "publisher": "Microsoft.Azure.Security",
+        "type": "[variables('extensionName')]",
+        "typeHandlerVersion": "[variables('extensionVersion')]",
+        "autoUpgradeMinorVersion": true,
+        "forceUpdateTag": "[parameters('forceUpdateTag')]",
+        "settings": {
+          "EncryptionOperation": "[variables('encryptionOperation')]",
+          "KeyVaultURL": "[reference(variables('keyVaultResourceId'),'2016-10-01').vaultUri]",
+          "KeyVaultResourceId": "[variables('keyVaultResourceID')]",
+          "KeyEncryptionKeyURL": "[parameters('keyEncryptionKeyURL')]",
+          "KekVaultResourceId": "[variables('keyVaultResourceID')]",
+          "KeyEncryptionAlgorithm": "[variables('keyEncryptionAlgorithm')]",
+          "VolumeType": "[variables('volumeType')]"
+
+        }
+      }
+    }
+  ]
+}

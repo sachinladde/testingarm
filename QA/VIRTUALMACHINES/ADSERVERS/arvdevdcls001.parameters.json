@@ -1,0 +1,83 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+  
+      "advmName": {
+        "value": "arvqadcls00"
+      },
+      "virtualMachineImage": {
+        "value": "/subscriptions/30f6e521-a907-43a7-8c79-70312e318675/resourceGroups/ds-services/providers/Microsoft.Compute/galleries/GoldenImage/images/WindowsServer-2012-R2"
+      },
+      "virtualMachineSize": {
+        "value": "Standard_A3"
+      },
+      "virtualMachineAdminUserName": {
+        "value": "arvazadmin"
+      },
+      "VMCount": {
+        "value": 1
+      },
+      "virtualNetworkRG": {
+        "value": "GAV-ARV-QA-NET-01"
+      },
+      "virtualNetworkName": {
+        "value": "gav-arv-qa-net-vn-001"
+      },
+      "adSubnetName": {
+        "value": "gav-arv-qa-ad-sn-001"
+      },
+      "OSDisk": {
+        "value": "gav-arv-qa-dc-osd-00"
+      },
+      "dataDiskName": {
+        "value": "gav-arv-qa-dat-dsk-dc-001"
+      },
+      "sizeOfDataDiskInGB": {
+        "value": 256
+      },
+      "diagnosticStorageAccountName": {
+        "value": "arvqastrdag001"
+      },
+      "adNicName": {
+        "value": "gav-arv-qa-dc-nic-00"
+      },
+      "virtualMachineAdminPassword": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+          },
+          "secretName": "devvmpwd"
+    
+        }
+      },
+      "ArmBlobStorageUrlFromKeyVault": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+          },
+          "secretName": "armblobstorageurl"
+    
+        }
+      },
+      "ArmSasTokenFromKeyVault": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+          },
+          "secretName": "armsastoken"
+    
+        }
+      },
+      "asgName": {
+        "value": "gav-arv-qa-ad-asg-001"
+      },
+      "taggingApplicationvalue": {
+        "value": "AirVault QA"
+      },
+      "taggingenvvalue"  : {
+        "value": "qa"
+      } 
+    }
+  }
+    

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
+      "value": "arv-dev-sec-kvt-001"
+    },
+    "enableVaultForDeployment": {
+      "value": true
+    },
+    "enableVaultForDiskEncryption": {
+      "value": true
+    },
+    "enabledForTemplateDeployment": {
+      "value": true
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault DEV"
+    },
+    "taggingenvvalue"  : {
+      "value": "dev"
+    }, 
+    "secretsObject": {
+      "value": {
+        "secrets": [
+          {
+            "secretName": "decryptionKey",
+            "secretValue": "defaultSecretValue"
+          },
+          {
+            "secretName": "validationKey",
+            "secretValue": "defaultSecretValue"
+          },
+          {
+            "secretName": "addomainpwd",
+            "secretValue": "defaultSecretValue"
+          },
+          {
+            "secretName": "diskencryptionsecret",
+            "secretValue": "defaultSecretValue"
+          },
+          {
+            "secretName": "tentacleapikey",
+            "secretValue": "defaultSecretValue"
+          },
+          {
+            "secretName": "armsastoken",
+            "secretValue": "defaultSecretValue"
+          },
+          {
+            "secretName": "armblobstorageurl",
+            "secretValue": "defaultSecretValue"
+          },
+          {
+            "secretName": "appGatewayCertData",
+            "secretValue": "defaultSecretValue"
+          },
+          {
+            "secretName": "devvmpwd",
+            "secretValue": "defaultSecretValue"
+          },
+          {
+            "secretName": "vpnsharedkey",
+            "secretValue": "defaultSecretValue"
+          }
+        ]
+      }
+    }
+  }
+}

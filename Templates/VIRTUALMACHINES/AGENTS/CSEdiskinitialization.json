@@ -1,0 +1,68 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+
+  "parameters": {
+    "vmName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the virtual machine"
+      }
+    },
+    "ArmBlobStorageUrlFromKeyVault": {
+      "type": "string",
+      "metadata": {
+        "description": "Blob Storage URL retrieved from Key Vault"
+      }
+    },
+    "ArmSasTokenFromKeyVault": {
+      "type": "securestring",
+      "metadata": {
+        "description": "SAS token retrieved from Key Vault"
+      }
+    },
+    "DriveLetters": {
+      "type": "string",
+      "metadata": {
+        "description": "Drive letters used to init disks"
+      }
+    },
+    "DriveLabels": {
+      "type": "string",
+      "metadata": {
+        "description": "Drive labels used to init disks"
+      }
+    }
+  },
+
+  "variables": {
+    "extensionName": "DiskInitialization",
+    "extensionVersion": "1.9",
+    "extensiontype": "CustomScriptExtension",
+    "command": "[concat('powershell -ExecutionPolicy Unrestricted -File ', './Templates/GENERAL/DiskInitialization.ps1 -DriveLetters ', parameters('DriveLetters'), ' -DriveLabels ', parameters('DriveLabels'))]"
+  },
+
+  "resources": [
+
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'),'/', variables('extensionName'))]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-06-01",
+
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "[variables('extensiontype')]",
+        "typeHandlerVersion": "[variables('extensionVersion')]",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/GENERAL/DiskInitialization.ps1'),uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]"
+          ],
+          "timestamp": 000000001,
+          "commandToExecute": "[variables('command') ]"
+        }
+      }
+    }
+  ]
+}

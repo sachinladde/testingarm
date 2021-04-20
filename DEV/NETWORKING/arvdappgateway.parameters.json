@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualNetworkRG": {
+      "value": "GAV-ARV-DEV-NET-01"
+    },
+    "virtualNetworkName": {
+      "value": "gav-arv-dev-net-vn-001"
+    },
+    "SkuTier": {
+      "value": "WAF"
+    },
+    "subnetName": {
+      "value": "gav-arv-dev-agw-sn-001"
+    },
+    "applicationGatewayName": {
+      "value": "gav-arv-dev-net-agw-001"
+    },
+    "applicationGatewaySize": {
+      "value": "WAF_Medium"
+    },
+    "sslCertificateData": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "appGatewayCertData"
+      }
+    },
+    "sslCertificatePassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-KVT-01/providers/Microsoft.KeyVault/vaults/arv-dev-sec-kvt-001"
+        },
+        "secretName": "appGatewayCertPassword"
+      }
+    },
+    "applicationGatewayInstanceCount": {
+      "value": 1
+    },
+    "cookieBasedAffinity": {
+      "value": "Disabled"
+    },
+    "Env": {
+      "value": "dev"
+    },
+    "zfpNicIds": {
+      "value": [
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-dev-web-zfp-nic-001",
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-dev-web-zfp-nic-002"
+      ]
+    },
+    "scanNicIds": {
+      "value": [
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-dev-web-enc-nic-001"
+      ]
+    },
+    "workflowNicIds": {
+      "value": [
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-dev-web-skt-nic-001"
+      ]
+    },
+    "reportNicIds": {
+      "value": [
+        "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-GEN-01/providers/Microsoft.Network/networkInterfaces/gav-arv-dev-web-srs-nic-001"
+      ]
+    },
+     "taggingApplicationvalue": {
+        "value": "AirVault DEV"
+      },
+      "taggingenvvalue"  : {
+        "value": "dev"
+      } 
+  }
+}

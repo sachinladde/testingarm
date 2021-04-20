@@ -1,0 +1,124 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+"parameters": {
+
+  "VMName": {
+    "value": "arvqappprcls00"
+  },
+  "virtualMachineImage": {
+    "value": "/subscriptions/30f6e521-a907-43a7-8c79-70312e318675/resourceGroups/ds-services/providers/Microsoft.Compute/galleries/GoldenImage/images/WindowsServer-2019"
+  },
+  "virtualMachineSize": {
+    "value": "Standard_A4_V2"
+  },
+  "virtualMachineAdminUserName": {
+    "value": "arvazadmin"
+  },
+  "virtualMachineAdminPassword": {
+    "reference": {
+      "keyVault": {
+        "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+      },
+      "secretName": "devvmpwd"
+    }
+  },
+  "virtualNetworkRG": {
+    "value": "GAV-ARV-QA-NET-01"
+  },
+  "virtualNetworkName": {
+    "value": "gav-arv-qa-net-vn-001"
+  },
+  "SubnetName": {
+    "value": "gav-arv-qa-app-sn-001"
+  },
+  "OSDisk": {
+    "value": "gav-arv-qa-app-prc-osd-00"
+  },
+  "diagnosticStorageAccountName": {
+    "value": "arvqastrdag001"
+  },
+
+  "NicName": {
+    "value": "gav-arv-qa-app-prc-nic-00"
+  },
+  "availabilitySetName": {
+    "value": "gav-arv-qa-app-prc-avs-001"
+  },
+  "availabilitySetPlatformFaultDomainCount": {
+    "value": "2"
+  },
+  "availabilitySetPlatformUpdateDomainCount": {
+    "value": "5"
+  },
+  "AVailabilitySetprovision":{
+    "value": "Yes"
+  },
+  "VMCount": {
+    "value": 2
+  },
+  "storageType": {
+    "value": "Standard_LRS"
+  },
+ 
+ 
+  "ArmBlobStorageUrlFromKeyVault": {
+    "reference": {
+      "keyVault": {
+        "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+      },
+      "secretName": "armblobstorageurl"
+
+    }
+  },
+  "ArmSasTokenFromKeyVault": {
+    "reference": {
+      "keyVault": {
+        "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+      },
+      "secretName": "armsastoken"
+
+    }
+  },
+  "TentacleApiKey": {
+    "reference": {
+      "keyVault": {
+        "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+      },
+      "secretName": "tentacleapikey"
+    }
+  },
+  "tentacleRoles": {
+    "value": "metadata-discovery,document-linking,document-exporter,docmaker,link-publishing,barcode,barcode-wcf,fp-index-validation,webserver-nonpublic,wif-adapter,upload-ingestor,zip-importer,import-server,text-reader-wcf,text-scraper,packagedocremoval,audit-publisher,prod-imagioProc2,Prod-imagioProc3,transfer-cleanup,Prod-ProdProc1,Integration-framework-svc,Prod-ProdProc4,auto-rotate,FpTemplateEditor,file-services,batch-cleanup,purge-services,batch-move,batch-split,prod-serviceserver-caching,standalone-installs,mne-vpn,policy-time-service"
+  },
+  "tentacleEnvironments": {
+    "value": "Azure-QA"
+  },
+  "keyEncryptionKeyURL": {
+    "reference": {
+      "keyVault": {
+        "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+      },
+      "secretName": "diskencryptionsecret"
+
+    }
+  },
+  "domainJoinUserPassword": {
+    "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "addomainpwd"
+      }
+  },
+  "asgName": {
+    "value": "gav-arv-qa-app-asg-001"
+  },
+  "taggingApplicationvalue": {
+    "value": "AirVault QA"
+  },
+  "taggingenvvalue"  : {
+    "value": "qa"
+  } 
+ }
+}

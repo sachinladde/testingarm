@@ -1,0 +1,89 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "gav-arv-prd-net-vn-001"
+    },
+    "PrivateNSGName": {
+      "value": "gav-arv-prd-pvt-nsg-001"
+    },
+    "vnetAddressPrefix": {
+      "value": "172.18.16.0/20"
+    },
+    "dnsServerIPAddress": {
+      "value": ["172.16.8.48", "172.16.8.44"]
+    },
+    
+    "adSubnetPrefix": {
+      "value": "172.18.17.0/24"
+    },
+    "webSubnetPrefix": {
+      "value": "172.18.18.0/24"
+    },
+    "appSubnetPrefix": {
+      "value": "172.18.19.0/24"
+    },
+    "dbSubnetPrefix": {
+      "value": "172.18.20.0/24"
+    },
+    "utilitysubnetPrefix": {
+      "value": "172.18.21.0/24"
+    },
+    "imgSubnetPrefix": {
+      "value": "172.18.22.0/24"
+    },
+    "appgatewaySubnetPrefix": {
+      "value": "172.18.23.0/26"
+    },
+    "bastionsubnetprefix": {
+      "value": "172.18.24.0/24"
+    },
+    "gatewaySubnetPrefix": {
+      "value": "172.18.25.0/27"
+    },
+    
+    "testSubnetPrefix": {
+      "value": "172.18.26.0/24"
+    },
+    "webSubnetName": {
+      "value": "gav-arv-prd-web-sn-001"
+    },
+    "appSubnetName": {
+      "value": "gav-arv-prd-app-sn-001"
+    },
+    "dbSubnetName": {
+      "value": "gav-arv-prd-db-sn-001"
+    },
+    "adSubnetName": {
+      "value": "gav-arv-prd-ad-sn-001"
+    },
+   
+    "ImgSubnetName": {
+      "value": "gav-arv-prd-img-sn-001"
+    },
+    
+    "gatewaySubnetName": {
+      "value": "GatewaySubnet"
+    },
+    "appgatewaySubnetName": {
+      "value": "gav-arv-prd-agw-sn-001"
+    },
+    "UtilitySubnetName": {
+      "value": "gav-arv-prd-utl-sn-001"
+    },
+    "bastionSubnetName": {
+      "value": "AzureBastionSubnet"
+    },
+    "testSubnetName": {
+      "value": "gav-arv-prd-tst-sn-001"
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault PRD"
+    },
+    "taggingenvvalue": {
+      "value": "prd"
+    }
+    
+  }
+}

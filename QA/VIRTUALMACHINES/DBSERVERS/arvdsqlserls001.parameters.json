@@ -1,0 +1,189 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "VMName": {
+      "value": "arvqsqlserls00"
+    },
+      "virtualMachineImage": {
+        "value": "/subscriptions/30f6e521-a907-43a7-8c79-70312e318675/resourceGroups/ds-services/providers/Microsoft.Compute/galleries/GoldenImage/images/WindowsServer-2019"
+      },
+    "virtualMachineSize": {
+      "value": "Standard_D4s_v3"
+    },
+    "virtualMachineAdminUserName": {
+      "value": "arvazadmin"
+    },
+    "virtualNetworkRG": {
+      "value": "GAV-ARV-QA-NET-01"
+    },
+    "virtualNetworkName": {
+      "value": "gav-arv-qa-net-vn-001"
+    },
+    "SubnetName": {
+      "value": "gav-arv-qa-db-sn-001"
+    },
+    "OSDisk": {
+      "value": "gav-arv-qa-sql-ser-osd-00"
+    },
+    "diagnosticStorageAccountName": {
+      "value": "arvqatrdag001"
+    },
+    "NicName": {
+      "value": "gav-arv-qa-sql-ser-nic-00"
+    },
+    "availabilitySetName": {
+      "value": "gav-arv-qa-sql-ser-avs-001"
+    },
+    "availabilitySetPlatformFaultDomainCount": {
+      "value": "2"
+    },
+    "availabilitySetPlatformUpdateDomainCount": {
+      "value": "5"
+    },
+    "VMCount": {
+      "value": 1
+    },
+    "storageType": {
+      "value": "Standard_LRS"
+    },
+    "AVailabilitySetprovision": {
+      "value": "No"
+    },
+    "virtualMachineAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "devvmpwd"
+      }
+    },
+    "dataDiskLabels": {
+      "metadata": {
+        "description": "These values have to be sorted by the asc size of the disks"
+      },
+      "value": "Programs,Temp,Logs,Data"
+    },
+    "dataDiskLetters": {
+      "metadata": {
+        "description": "These values have to be sorted by the asc size of the disks"
+      },
+      "value": "P,T,L,F"
+    },
+    "dataDisks": {
+      "value": [
+        {
+          "lun": 0,
+          "createOption": "attach",
+          "caching": "None",
+          "writeAcceleratorEnabled": false,
+          "id": null,
+          "name": "gav-arv-qa-sql-ser-dad-01",
+          "storageAccountType": null,
+          "diskSizeGB": null,
+          "sku": "Premium_LRS",
+          "properties": {
+            "diskSizeGB": 1024,
+            "creationData": {
+              "createOption": "empty"
+            }
+          }
+        },
+        {
+          "lun": 1,
+          "createOption": "attach",
+          "caching": "None",
+          "writeAcceleratorEnabled": false,
+          "id": null,
+          "name": "gav-arv-qa-sql-ser-dad-00",
+          "storageAccountType": null,
+          "diskSizeGB": null,
+          "sku": "Premium_LRS",
+          "properties": {
+            "diskSizeGB": 5120,
+            "creationData": {
+              "createOption": "empty"
+            }
+          }
+        },
+        {
+          "lun": 2,
+          "createOption": "attach",
+          "caching": "None",
+          "writeAcceleratorEnabled": false,
+          "id": null,
+          "name": "gav-arv-qa-sql-ser-dad-02",
+          "storageAccountType": null,
+          "diskSizeGB": null,
+          "sku": "Premium_LRS",
+          "properties": {
+            "diskSizeGB": 512,
+            "creationData": {
+              "createOption": "empty"
+            }
+          }
+        },
+        {
+          "lun": 3,
+          "createOption": "attach",
+          "caching": "None",
+          "writeAcceleratorEnabled": false,
+          "id": null,
+          "name": "gav-arv-qa-sql-ser-dad-03",
+          "storageAccountType": null,
+          "diskSizeGB": null,
+          "sku": "Premium_LRS",
+          "properties": {
+            "diskSizeGB": 128,
+            "creationData": {
+              "createOption": "empty"
+            }
+          }
+        }
+      ]
+    },
+    "ArmBlobStorageUrlFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"  
+        },
+        "secretName": "armblobstorageurl"
+      } 
+    },
+  
+    "ArmSasTokenFromKeyVault": {  
+      "reference": {   
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"  
+        },
+        "secretName": "armsastoken"
+    }
+    },
+    "keyEncryptionKeyURL": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "diskencryptionsecret"
+  
+      }
+    },
+    "domainJoinUserPassword": {
+      "reference": {
+          "keyVault": {
+            "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+          },
+          "secretName": "addomainpwd"
+        }
+    },
+    "asgName": {
+      "value": "gav-arv-qa-sql-asg-001"
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault QA"
+    },
+    "taggingenvvalue"  : {
+      "value": "qa"
+    }  
+  }
+}

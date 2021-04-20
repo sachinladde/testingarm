@@ -1,0 +1,106 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "value": "gav-arv-qa-net-vn-001"
+    },
+    "vnetAddressPrefix": {
+      "value": "172.19.144.0/20"
+    },
+    "dnsServerIPAddress": {
+      "value": ["172.16.8.48", "172.16.8.44"]
+    },
+    "adSubnetPrefix": {
+      "value": "172.19.146.0/24"
+    },
+    "webSubnetPrefix": {
+      "value": "172.19.147.0/24"
+    },
+    "appSubnetPrefix": {
+      "value": "172.19.148.0/24"
+    },
+    "dbSubnetPrefix": {
+      "value": "172.19.149.0/24"
+    },
+    "utilitysubnetPrefix": {
+      "value": "172.19.150.0/24"
+    },
+    "imgSubnetPrefix": {
+      "value": "172.19.151.0/24"
+    },
+    "appgatewaySubnetPrefix": {
+      "value": "172.19.152.0/26"
+    },
+    "bastionsubnetprefix": {
+      "value": "172.19.153.0/24"
+    },
+    "gatewaySubnetPrefix": {
+      "value": "172.19.154.0/27"
+    },
+    
+    "testSubnetPrefix": {
+      "value": "172.19.157.0/24"
+    },
+    
+    "webSubnetName": {
+      "value": "gav-arv-qa-web-sn-001"
+    },
+    "appSubnetName": {
+      "value": "gav-arv-qa-app-sn-001"
+    },
+    "dbSubnetName": {
+      "value": "gav-arv-qa-db-sn-001"
+    },
+    "adSubnetName": {
+      "value": "gav-arv-qa-ad-sn-001"
+    },
+   
+    "ImgSubnetName": {
+      "value": "gav-arv-qa-img-sn-001"
+    },
+    
+    "gatewaySubnetName": {
+      "value": "GatewaySubnet"
+    },
+    "appgatewaySubnetName": {
+      "value": "gav-arv-qa-agw-sn-001"
+    },
+    "UtilitySubnetName": {
+      "value": "gav-arv-qa-utl-sn-001"
+    },
+    "bastionSubnetName": {
+      "value": "AzureBastionSubnet"
+    },
+    "testSubnetName": {
+      "value": "gav-arv-qa-tst-sn-001"
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault QA"
+    },
+    "taggingenvvalue": {
+      "value": "qa"
+    },
+    "ArmBlobStorageUrlFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "armblobstorageurl"
+  
+      }
+    },
+    "ArmSasTokenFromKeyVault": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-QA-KVT-01/providers/Microsoft.KeyVault/vaults/arv-qa-sec-kvt-001"
+        },
+        "secretName": "armsastoken"
+  
+      }
+    },
+    "Env":{
+      "value": "QA"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "loadBalancerName": {
+            "value": "gav-arv-dev-int-ilb-001"
+        },
+        "virtualNetworkExternalId": {
+            "value": "/subscriptions/b9b4d184-4d3d-48be-bc6d-ea7c80fdc35f/resourceGroups/GAV-ARV-DEV-NET-01/providers/Microsoft.Network/virtualNetworks/gav-arv-dev-net-vn-001"
+        },
+        "tagginguaivalue":{
+            "value": "uai3026608"
+          },
+          "taggingenvvalue":{
+            "value": "dev"
+          },
+          "taggingcontactvalue":{
+            "value": "Airvaultopsengineering@ge.com"
+          },
+          "taggingpreservevalue":{
+            "value": "TRUE"
+          },
+          "taggingapplicationname":{
+            "value": "AirVault DEV"
+          },
+          "privateipaddress":{
+              "value": "172.19.35.4"
+          },
+          "Env":{
+            "value": "dev"
+          },
+          "location":{
+            "value": "eastus"
+          }
+    }
+}

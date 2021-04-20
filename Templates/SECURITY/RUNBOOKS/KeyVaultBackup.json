@@ -1,0 +1,99 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "automationAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Specify the name of your Automation Account"
+      }
+    },
+    "SourceKeyVault": {
+      "type": "string",
+      "metadata": {
+        "description": "Specify the name of your Source KeyVault"
+      }
+    },
+    "DestinationKeyVault": {
+      "type": "string",
+      "metadata": {
+        "description": "Specify the name of your Destination KeyVault"
+      }
+    },
+    "Subscription": {
+      "type": "string",
+      "metadata": {
+        "description": "Specify the ID of your Subscription"
+      }
+    },
+     "ArmBlobStorageUrlFromKeyVault": {
+        "type": "string",
+          "metadata": {
+            "description": "Blob Storage URL retrieved from Key Vault"
+          }
+      },
+       "ArmSasTokenFromKeyVault": {
+        "type": "securestring",
+          "metadata": {
+            "description": "SAS token retrieved from Key Vault"
+          }
+      }
+
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2018-06-30",
+      "name": "[concat(parameters('automationAccountName'), '/Keyvault-key-secret-backup')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "description": "This runbook takes care of backing up keyvault keys and secrets periodically",
+        "logVerbose": true,
+        "logProgress": true,
+        "logActivityTrace": 0,
+        "runbookType": "PowerShell",
+        "publishContentLink": {
+          "uri": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/SECURITY/RUNBOOKS/KeyVaultBackup.ps1'), parameters('ArmSasTokenFromKeyVault'))]",
+          "version": "1.0.0.0"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/schedules",
+      "apiVersion": "2015-10-31",
+      "name": "[concat(parameters('automationAccountName'), '/GAV-ARV-KEY-BKP-SCH-01')]",
+      "dependsOn": [],
+      "properties": {
+        "description": "This runbook schedule runs once every 3 months",
+        "startTime": "",
+        "isEnabled": "true",
+        "interval": 3,
+        "frequency": "Month"
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/jobSchedules",
+      "apiVersion": "2015-10-31",
+      "name": "[concat(parameters('automationAccountName'), '/GAV-ARV-KEY-BKP-JSH-01')]",
+      "dependsOn": [
+        "GAV-ARV-KEY-BKP-SCH-01",
+        "Keyvault-key-secret-backup"
+      ],
+      "properties": {
+        "runbook": {
+          "name": "Keyvault-key-secret-backup"
+        },
+        "schedule": {
+          "name": "GAV-ARV-KEY-BKP-SCH-01"
+        },
+        "parameters": {
+          "Source": "[parameters('SourceKeyVault')]",
+          "Target": "[parameters('DestinationKeyVault')]",
+          "Subscription": "[parameters('Subscription')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

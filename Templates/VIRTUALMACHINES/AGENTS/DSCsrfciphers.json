@@ -1,0 +1,66 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vmName": {
+            "type": "String",
+            "metadata": {
+                "description": "Name of the virtual machine"
+            }
+        },
+        "configFunction": {
+            "type": "String",
+            "defaultValue": "ServerConfiguration",
+            "metadata": {
+                "description": "Name of the DSC config function to apply"
+            }
+        },
+        "configParams": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "An object containing the required params for configFunction"
+            }
+        },
+        "ArmBlobStorageUrlFromKeyVault": {
+            "type": "string",
+            "metadata": {
+                "description": "Blob Storage URL retrieved from Key Vault"
+            }
+        },
+
+        "ArmSasTokenFromKeyVault": {
+            "type": "securestring",
+            "metadata": {
+                "description": "SAS token retrieved from Key Vault"
+            }
+        }
+    },
+    "variables": {
+        "extensionName": "DSCsrfciphers",
+        "extensiontype": "DSC",
+        "extensionVersion": "2.76",
+        "ConfigurationFunction": "[concat('DSC.ps1\\', parameters('configFunction'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2017-03-30",
+            "name": "[concat(parameters('vmName'),'/', variables('extensionName'))]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "[variables('extensiontype')]",
+                "typeHandlerVersion": "[variables('extensionVersion')]",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "ModulesUrl": "[concat(uri(parameters('ArmBlobStorageUrlFromKeyVault'), 'Templates/GENERAL/DSC.zip'),uriComponentToString(parameters('ArmSasTokenFromKeyVault')))]",
+                    "ConfigurationFunction": "[variables('ConfigurationFunction')]"
+                },
+                "protectedSettings": {
+                    "Properties": "[parameters('configParams')]"
+                }
+            }
+        }
+    ]
+}

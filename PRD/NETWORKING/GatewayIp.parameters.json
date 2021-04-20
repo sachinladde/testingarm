@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "gatewayPublicIPName": {
+      "value": "gav-arv-prd-net-pip-001"
+    },
+    "taggingenvvalue": {
+      "value": "prd"
+    },
+    "taggingApplicationvalue": {
+      "value": "AirVault PRD"
+    }
+  }
+}
